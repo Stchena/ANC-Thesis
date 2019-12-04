@@ -6,7 +6,6 @@
 Celem pracy jest przybliżenie czytelnikowi problemu hałasu i~jego tłumienia oraz  zaprojektowanie kompletnego rozwiązania dla takiego zadania inżynierskiego. W~skład projektu wchodzi przeanalizowanie dostępnych platform sprzętowych, zaprojektowanie systemu, wykonanie, oprogramowanie, uruchomienie, dostrojenie oraz przetestowanie prototypowego układu tłumienia hałasu. Aby zmniejszyć koszty i~zmaksymalizować szanse powodzenia projektu, autor używa powszechnie dostępnych rynkowo komponentów i~dobrze przebadanego, względnie prostego w~implementacji algorytmu. Konfiguracyjny kod programu zostanie wygenerowany przy użyciu procedur automatycznej generacji kodu%TODO Sprawdzic czy CubeMX jest licencjonowany :P
 , zaś algorytm zostanie zaimplementowany ręcznie przy użyciu języka programowania wysokiego poziomu~C.\\
 Praca ma również na celu sprawdzenie walorów rynkowych proponowanego przez autora rozwiązania poprzez porównanie z~istniejącym, powszechnie stosowanym produktem.
-%TODO specyfikacja wymagan projektu
 \subsection{Specyfikacja wymagań projektu}
 Aby wybrane przez autora rozwiązanie można było traktować jako zadowalające i~rozwiązujące problem, musi ono posiadać następujące cechy:
 \begin{enumerate}
@@ -18,19 +17,19 @@ Aby wybrane przez autora rozwiązanie można było traktować jako zadowalające
 \end{enumerate}
 \section{Zawartość pracy}
 \label{sec:zawartoscPracy}
-Rozdział I niniejszej pracy zawiera wprowadzenie, specyfikację wymagań projektu i~przegląd literatury ukierunkowany na relację tego opracowania do obecnego stanu wiedzy wraz z~wyszczególnieniem relacji łączących poszczególne tytuły z~zawartością pracy.\\
+Rozdział I niniejszej pracy zawiera wprowadzenie, specyfikację wymagań projektu i~przegląd literatury ukierunkowany na relację tego opracowania do obecnego stanu wiedzy wraz z~wyszczególnieniem relacji łączących poszczególne tytuły z~zawartością pracy.
 
-Z kolei rozdział II wprowadza czytelnika w~informacje teoretyczne dotyczące hałasu i~istniejących obecnie metod jego redukowania. Przedstawia dostępne rozwiązania konstrukcyjne aktywnego tłumienia oraz pokrótce wyjaśnia zasadę działania adaptacyjnego algorytmu filtracyjnego.\\
+Z kolei rozdział II wprowadza czytelnika w~informacje teoretyczne dotyczące hałasu i~istniejących obecnie metod jego redukowania. Przedstawia dostępne rozwiązania konstrukcyjne aktywnego tłumienia oraz pokrótce wyjaśnia zasadę działania adaptacyjnego algorytmu filtracyjnego.
 
-Następnie, w~rozdziale III, autor na podstawie konstrukcji z~poprzedniego rozdziału opisze dostępne platformy sprzętowe, przeanalizuje ich wady i~zalety oraz dokona dalszego wyboru sposobu rozwiązania problemu. W~części poświęconej wyborowi podejścia autor przedstawi również dostępne środowiska służące do prototypowania oraz programowania układu.\\
+Następnie, w~rozdziale III, autor na podstawie konstrukcji z~poprzedniego rozdziału opisze dostępne platformy sprzętowe, przeanalizuje ich wady i~zalety oraz dokona dalszego wyboru sposobu rozwiązania problemu. W~części poświęconej wyborowi podejścia autor przedstawi również dostępne środowiska służące do prototypowania oraz programowania układu.
 
-Po dokonaniu wyboru, rozdział IV będzie wprowadzeniem do praktycznej części tej pracy, gdzie autor wymieni zastosowane komponenty, elementy pasywnej redukcji, przedstawi schemat i~konfigurację układu oraz opisze, w~jaki sposób wygenerował kod konfiguracyjny, który posłużył mu do zaimplementowania algorytmu filtracji.\\
+Po dokonaniu wyboru, rozdział IV będzie wprowadzeniem do praktycznej części tej pracy, gdzie autor wymieni zastosowane komponenty, elementy pasywnej redukcji, przedstawi schemat i~konfigurację układu oraz opisze, w~jaki sposób wygenerował kod konfiguracyjny, który posłużył mu do zaimplementowania algorytmu filtracji.
 
-W~dalszej części pracy, w~rozdziale V zostanie bliżej opisana obliczeniowa platforma sprzętowa oraz zamontowane do niej peryferia -- mikrofony, głośnik, oraz wymagane przedwzmacniacze audio. Autor na podstawie obliczeń zweryfikuje poprawność konfiguracji.\\
+W~dalszej części pracy, w~rozdziale V zostanie bliżej opisana obliczeniowa platforma sprzętowa oraz zamontowane do niej peryferia -- mikrofony, głośnik, oraz wymagane przedwzmacniacze audio. Autor na podstawie obliczeń zweryfikuje poprawność konfiguracji.
 
-Następnym etapem pracy jest implementacja algorytmu, co zostanie przedstawione dokładnie w~rozdziale VI. Autor w~przystępny sposób przybliży schemat przetwarzania danych, opisze zastosowany algorytm, zaimplementuje go oraz dobierze jego początkowe nastawy.\\
+Następnym etapem pracy jest implementacja algorytmu, co zostanie przedstawione dokładnie w~rozdziale VI. Autor w~przystępny sposób przybliży schemat przetwarzania danych, opisze zastosowany algorytm, zaimplementuje go oraz dobierze jego początkowe nastawy.
 
-Wreszcie, po stworzeniu kompletnego systemu, w~rozdziale VII zostanie on porównany z~symulacją komputerową Simulink oraz wykonany będzie test praktyczny w~środowisku podatnym na hałas.\\
+Wreszcie, po stworzeniu kompletnego systemu, w~rozdziale VII zostanie on porównany z~symulacją komputerową Simulink oraz wykonany będzie test praktyczny w~środowisku podatnym na hałas.
 
 Na końcu, w~rozdziale VIII autor podsumuje efekty projektu oceniając jego jakość względem istniejących rozwiązań komercyjnych, wyciągnie wnioski i~zaproponuje możliwe usprawnienia systemu.
 \section{Przegląd literatury}

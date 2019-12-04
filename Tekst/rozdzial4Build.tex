@@ -1,14 +1,25 @@
 \chapter{Konstrukcja mechaniczna projektu}
 \label{cha:constr}
-%TODO Podzielić ten rozdział na konstrukcję mechaniczno-fizyczno-jakąś i na hardware osobno z konfiguracją (obliczeniowa platforma sprzetowa)
+W~tym rozdziale, po wybraniu rodzaju konstrukcji oraz platformy sprzętowej, autor przedstawia zastosowane komponenty oraz generalną konstrukcję mechaniczną projektu.
 \section{Zastosowane komponenty}
 \label{sec:komponenty}
-
+Aby skonstruować kompletny system pasywno-aktywnego tłumienia hałasu, autor zbudował swój projekt na bazie prostych, komercyjnych nauszników tłumiących, stosowanych w~budownictwie lub przemyśle. Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplementowania części aktywnej układu zastosowano wymienione poniżej elementy analogowe oraz cyfrowe, przy czym elementy cyfrowe są wymienione każdy z~osobna pomimo bycia integralną częścią mikrokontrolera.
+\begin{enumerate}
+	\item Analogowe:
+	\begin{itemize}
+		\item 2x Pojemnościowy mikrofon elektretowy CMA-4544PF-W
+		\item 2x Przedwzmacniacz mikrofonowy Adafruit MAX4466
+		\item Wzmacniacz audio klasy D Adafruit PAM8302
+		\item Głośnik MG15 0.1W, 8 Ohm 
+	\end{itemize}
+	\item Cyfrowe:
+	\begin{itemize}
+		\item 
+	\end{itemize}
+\end{enumerate}
 \section{Użyte elementy pasywnej redukcji}
 \label{sec:usedPNC}
 
 \section{Schemat i konfiguracja układu}
 \label{sec:config}
 
-\section{Wygenerowanie kodu w języku C}
-\label{sec:configGenerate}
