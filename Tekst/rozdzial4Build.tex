@@ -12,7 +12,7 @@ Aby skonstruować kompletny system pasywno-aktywnego tłumienia hałasu, autor z
 		\item 2x Przedwzmacniacz mikrofonowy Adafruit MAX4466\\
 		Wzmacniacz operacyjny zoptymalizowany przez producenta pod kątem wykorzystania z~mikrofonami. Autor zakupił przedwzmacniacz połączony przez producenta z~wyżej wymienionym mikrofonem w~ramach jednej płytki. Należy pamiętać o~potrzebie wprowadzenia korekty fazy po przesunięciu jej przez ten komponent. Producent deklaruje 
 		\item Wzmacniacz audio klasy D Adafruit PAM8302\\
-		Ten wzmacniacz mono o~mocy \SI{2.5}{\W} skonstruowany jest do współpracy z~głośnikami o~impedancji od \SI{4}{} do \SI{8}{\ohm}. Producent deklaruje sprawność w~zakresie 85-88\% \cite{speakeropamp} oraz niskie przesterowania (10\% THD+N). %TODO CHECK BIB
+		Ten wzmacniacz mono o~mocy \SI{2.5}{\W} skonstruowany jest do współpracy z~głośnikami o~impedancji od \SI{4}{} do \SI{8}{\ohm}. Producent deklaruje sprawność w~zakresie 85-88\% \cite{speakeropamp} oraz niskie przesterowania (10\% THD+N).
 		
 		\item Głośnik MG15 \SI{0.1}{\W}; \SI{8}{\ohm}
 	\end{itemize}
@@ -22,13 +22,15 @@ Aby skonstruować kompletny system pasywno-aktywnego tłumienia hałasu, autor z
 		Autor zdecydował się użyć dwóch osobnych przetworników do akwizycji sygnału z~mikrofonów, aby uniknąć przesterowań i~przesłuchów, które inaczej byłyby bardzo silnie wdrożone do toru pomiarowego w~przypadku użycia jednego przetwornika. Wiąże się to z~dużą podatnością na szum, którą charakteryzuje się rozdzielający kanały multiplekser większości przetworników A/D. Zmniejsza to też nieznacznie opóźnienia w~przetworzeniu sygnału, gdyż można wtedy skonfigurować przetworniki w~trybie mierzenia pojedynczego kanału, a~nie skanowania po kolei wszystkich dostępnych~16.\\
 		Warto zauważyć, że przetworniki dostępne na płytce użytej przez autora mają rozdzielczość 12-bit, co pozostawia pewne pole do poprawy projektu i~wyboru komponentów, ale jednocześnie zapewnia wystarczający poziom dokładności.
 		\item 2x Kontroler DMA\footnote{Bezpośredni Dostęp do Pamięci (ang. Direct Memory Access)}\\
-		Jeden z~kontrolerów użyty jest do transferu danych z~przetworników~A/D do pamięci mikrokontrolera STM32, zaś drugi do transferu po przeprowadzeniu obliczeń z~pamięci do przetwornika D/A. Transfer w~pierwszym przypadku dokonywany jest w~trybie ciągłym, a~więc po każdym przerwaniu do DMA zgłoszonym przez przetwornik na końcu konwersji. W~drugim przypadku, transfer wywoływany jest programowo po każdym skończonym cyklu obliczeniowym.
+		Jeden z~kontrolerów użyty jest do transferu danych z~przetworników~A/D do pamięci mikrokontrolera STM32, zaś drugi do transferu po przeprowadzeniu obliczeń z~pamięci do przetwornika D/A. Transfer w~pierwszym przypadku dokonywany jest w~trybie ciągłym, a~więc po każdym przerwaniu do DMA zgłoszonym przez przetwornik na końcu konwersji. W~drugim przypadku, transfer wywoływany jest po każdym skończonym cyklu obliczeniowym.
 		\item NVIC (Nested Vectored Interrupt Controller)\\
 		Kontroler przerwań (zagnieżdżonych), który przyspiesza ich obsługę.
 		\item Mikroprocesor\\
 		Główna jednostka obliczeniowa.
 		\item FPU (Floating Point Unit)
 		Jednostka dedykowana do obliczeń zmiennoprzecinkowych 32-bit (a~więc typu float). Znacznie przyspiesza obliczenia na ułamkach, należy jednak pamiętać, że nie działa dla typu double (więc 64-bit). 
+		\item Przetwornik cyfrowo-analogowy\\
+		Do celu prototypowego użyto jednego kanału wyjściowego, aby przetestować działanie systemu w~jednolitej, odgrodzonej przestrzeni sferycznej. Konwersja sygnału na postać analogową następuje automatycznie, bez wywołania, przy każdej wykrytej zmianie słowa bitowego podanego na rejestr prowadzący do przetwornika DAC.
 	\end{itemize}
 \end{enumerate}
 
@@ -53,4 +55,14 @@ Uproszczony schemat w~wersji graficznej został przedstawiony przez autora na ry
 	\caption{Schemat układu.}
 	\label{fig:schemat1}
 \end{figure}
-Autor pominął pomniejsze elementy, które nie wnoszą szczególnych informacji do modelu układu. W~kwestii umiejscowienia mikrofonu odsłuchowego autor posłużył się wnioskami pracy \cite{ANC4HP}, której autorzy na podstawie widma częstotliwościowego zbadali optymalne położenie mikrofonu i~wyznaczyli, że takim miejscem jest bliskie otoczenie przewodu słuchowego zewnętrznego.
+Autor pominął pomniejsze elementy, które nie wnoszą szczególnych informacji do modelu układu. W~kwestii umiejscowienia mikrofonu odsłuchowego autor posłużył się wnioskami wypracowanymi w~artykule dotyczącym aktywnej redukcji hałasu w~zastosowaniach słuchawek tłumiących \cite{ANC4HP}. Autorzy pracy na podstawie widma częstotliwościowego wyznaczyli optymalne położenie mikrofonu i~wykazali, że takim miejscem jest bliskie otoczenie przewodu słuchowego zewnętrznego. Konkretne położenie mikrofonu odsłuchowego ilustruje lokacja nr~8 na grafice \ref{fig:error_mic_placement} zapożyczonej z~wyżej wymienionej pracy. %TODO sprawdzic dopisek przy obrazku
+Mikrofon odsłuchowy umiejscowiony w~optymalnej pozycji charakteryzuje się zlinearyzowaną odpowiedzią częstotliwościową, co ogranicza błędy pomiarowe i~poprawia precyzję zastosowanego rozwiązania. 
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.75]{../Assets/error_mic_placement.png}
+	\caption{Położenie mikrofonu odsłuchowego odzwierciedla lokacja nr 8.}
+	\label{fig:error_mic_placement}
+\end{figure}
+Aby stworzyć odgrodzoną przestrzeń sferyczną, autor postanowił złączyć (ścisnąć) dwie odłączone słuchawki użytych nauszników. Do celów testowych nie będzie potrzebny dodatkowy mikrofon umieszczony w~środku przestrzeni, zamiast tego zostanie użyty zamontowany już mikrofon odsłuchowy. Dane z~niego, oprócz do pamięci, zostaną wysłane również do komputera walidującego rozwiązanie, gdzie na bieżąco monitorowane będzie widmo częstotliwościowe.
+
+Aby zasilić prototyp, autor podłączył mikrokontroler poprzez USB do komputera osobistego. Zapewniło to standardowe zasilanie na poziomie \SI{3.3}{\V}. Ponadto, celem odseparowania części analogowej od cyfrowej, autor zdecydował się zapewnić osobne zasilanie dla układów analogowych, a~więc mikrofonu wraz z~jego przedwzmacniaczem, oraz dla wzmacniacza głośnikowego. Tym samym zredukowane są zakłócenia, które normalnie mogłyby się przenieść z~linii zasilania układu cyfrowego do bardzo wrażliwej na te zakłócenia części analogowej. Zasilanie to zostało osiągnięte poprzez podpięcie pastylkowych akumulatorów \SI{3}{\V} do elementów analogowych. Zastosowanie ładowalnych akumulatorów zwiększa żywotność układu ograniczając liczbę potrzebnych wymian baterii.
