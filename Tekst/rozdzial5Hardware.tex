@@ -1,12 +1,12 @@
 \chapter{Hardware -- konfiguracja}
 Ten rozdział poświęcony jest dokładnemu opisowi konfiguracji układu i~jego peryferiów oraz procesu generowania kodu w~C. Autor wyszczególnia kluczowe decyzje konfiguracyjne i~uzasadnia podjęte wybory. Autor przytacza fragmenty dokumentacji płytki ewaluacyjnej, instrukcji obsługi użytkownika oraz innych dokumentów dostarczonych przez producenta mikrokontrolera, aby poprzeć wywody i~obliczenia obecne w~tym rozdziale. Całość procesu dobierania parametrów i~ustawień komponentów płytki ewaluacyjnej przeprowadzona jest we wspomnianym w~sekcji \ref{sec:IDE} środowisku STM32CubeMX. Zastosowano podejście bare-metal programming, by w~jak największym stopniu ograniczyć narzuty czasowe operacji niezwiązanych ściśle z~przetwarzaniem dźwięku.
 \section{Obliczeniowa platforma sprzętowa}
-
+Jak już opisano wcześniej, do realizacji projektu autor wybrał mikrokontroler na płytce ewaluacyjnej NUCLEO-STM32F446RE. Płytka posiada 64 piny GPIO do zastosowania na różnorodne sposoby -- do komunikacji ze światem zewnętrznym. Centralnym elementem płytki jest mikrokontroler z~procesorem ARM Cortex M4 w~architekturze 32-bit RISC\footnote{Przetwarzanie Danych przez Ograniczoną Listę Rozkazów (ang. Reduced Instruction Set Computing)}. Mikroprocesor pracuje z~częstotliwością zegara równą \SI{180}{\MHz} i~posiada 512KB pamięci flash oraz 128KB pamięci cache\footnote{Pamięć podręczna SRAM, pozwala na bezpośredni zapis i~odczyt danych wewnątrz rejestrów procesora bez oczekiwania na dane}.
 \section{Konfiguracja peryferiów}
 Konfigurację systemu należy rozpocząć od uruchomienia wszystkich wymienionych w~poprzednim rozdziale elementów cyfrowych. Dobór parametrów omówiony zostanie zatem po kolei dla każdego komponentu:
 \begin{itemize}
 	\item Przetwornik analogowo-cyfrowy nr 1 (od głównego mikrofonu)\\
-	Oba przetworniki skonfigurowane są w~trybie dualnym jednoczesnej konwersji regularnej\footnote{Ang. Dual regular simultaneous mode}. Pozwala to na synchronizowane działanie komponentów z~przetwornikiem numer~1~jako elementem nadrzędnym. Przetwarzany sygnał kierowany jest do kanału 0. 
+	Oba przetworniki skonfigurowane są w~trybie dualnym jednoczesnej konwersji zwykłej\footnote{Ang. Dual regular simultaneous mode}. Pozwala to na synchronizowane działanie komponentów z~przetwornikiem numer~1~jako elementem nadrzędnym. Przetwarzany sygnał kierowany jest do kanału~0. 
 \end{itemize}
 \section{Wygenerowanie kodu w języku C}
 \label{sec:configGenerate}

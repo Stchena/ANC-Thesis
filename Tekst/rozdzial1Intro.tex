@@ -3,8 +3,7 @@
 
 \section{Cele pracy}
 \label{sec:celePracy}
-Celem pracy jest przybliżenie czytelnikowi problemu hałasu i~jego tłumienia oraz  zaprojektowanie kompletnego rozwiązania dla takiego zadania inżynierskiego. W~skład projektu wchodzi przeanalizowanie dostępnych platform sprzętowych, zaprojektowanie systemu, wykonanie, oprogramowanie, uruchomienie, dostrojenie oraz przetestowanie prototypowego układu tłumienia hałasu. Aby zmniejszyć koszty i~zmaksymalizować szanse powodzenia projektu, autor używa powszechnie dostępnych rynkowo komponentów i~dobrze przebadanego, względnie prostego w~implementacji algorytmu. Konfiguracyjny kod programu zostanie wygenerowany przy użyciu procedur automatycznej generacji kodu%TODO Sprawdzic czy CubeMX jest licencjonowany :P
-, zaś algorytm zostanie zaimplementowany ręcznie przy użyciu języka programowania wysokiego poziomu~C.\\
+Celem pracy jest przybliżenie czytelnikowi problemu hałasu i~jego tłumienia oraz  zaprojektowanie kompletnego rozwiązania dla takiego zadania inżynierskiego. W~skład projektu wchodzi przeanalizowanie dostępnych platform sprzętowych, zaprojektowanie systemu, wykonanie, oprogramowanie, uruchomienie, dostrojenie oraz przetestowanie prototypowego układu tłumienia hałasu. Aby zmniejszyć koszty i~zmaksymalizować szanse powodzenia projektu, autor używa powszechnie dostępnych rynkowo komponentów i~dobrze przebadanego, względnie prostego w~implementacji algorytmu. Konfiguracyjny kod programu zostanie wygenerowany przy użyciu procedur automatycznej generacji kodu, zaś algorytm zostanie zaimplementowany ręcznie przy użyciu języka programowania wysokiego poziomu~C.\\
 Praca ma również na celu sprawdzenie walorów rynkowych proponowanego przez autora rozwiązania poprzez porównanie z~istniejącym, powszechnie stosowanym produktem.
 \subsection{Specyfikacja wymagań projektu}
 Aby wybrane przez autora rozwiązanie można było traktować jako zadowalające i~rozwiązujące problem, musi ono posiadać następujące cechy:
@@ -42,8 +41,7 @@ Jako głównej bazy dla stworzenia filtru FIR z algorytmem LMS, autor użył ''A
 
 Aby poprzeć tworzenie filtru oraz by zastosować się do powszechnie stosowanych i~uznawanych praktyk pracy z~systemami audio, autor wsparł się tytułem ''Principles of Digital Audio'' autorstwa Ken'a~Pohlmann'a, również uznawanego autorytetu w~dziedzinie akustyki oraz przetwarzania sygnałów. Pozycja ta zapoznaje czytelnika z~takimi pojęciami, jak numeryczna reprezentacja d\'zwięku, twierdzenie o~próbkowaniu Nyquista-Shannona, kodowanie w~dziedzinie częstotliwości oraz THD+N\footnote{Współczynnik zawartości harmonicznych + Szum	(ang. Total Harmonic Distortion + Noise)}. Pojęcia te są szczególnie ważne w~rozdziale poświęconym testom zbudowanego układu -- to~tam zostaną zmierzone najważniejsze parametry d\'zwiękowe uzyskanego sygnału, celem określenia przydatności rozwiązania.
 
-Celem wybrania konkretnego podejścia, autor użył PLACEHOLDER %TODO dodać zrodla
-oraz wykonał podstawowe testy opóźnień czasowych sterowników dźwięku ALSA na mikrokomputerze Raspberry Pi Model 3B oraz PLACEHOLDER2.%TODO dodac cos jeszcze.
+Celem wybrania konkretnego podejścia, autor użył źródeł internetowych, własnych doświadczeń z~platformami sprzętowymi oraz wykonał podstawowe testy opóźnień czasowych sterowników dźwięku ALSA na mikrokomputerze Raspberry Pi Model 3B.
 
 Wreszcie, po podjęciu decyzji odnośnie platformy, na której realizowany będzie cały system, autor użył dokumentacji, not katalogowych i~manuali dostarczanych przez producentów stosowanej platformy sprzętowej oraz używanych peryferiów. Przegląd wymienionych pozycji jest wręcz niezbędny, gdyż bez niego nie można dopasować urządzeń peryferyjnych (mikrofony, głośniki, wzmacniacze) bez narażania układu na uszkodzenie, lub w~najlepszym wypadku na bardzo niską jakość działania.\\
 Podczas tworzenia symulacji komputerowych równie ważna okazała się dokumentacja Matlab/Simulink. 
