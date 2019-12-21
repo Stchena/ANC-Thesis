@@ -59,10 +59,11 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-float samples[L] = {0.0};				// buffer of L input samples, where 0 is newest, L-1 is oldest
-float errors[L] = {0.0};				// buffer of L error samples, where 0 is newest, L-1 is oldest
-float weights[L] = {0.0}; 				// Filter coefficients (weights), where 0 is newest, L-1 is oldest
-uint32_t micInsideOutside; // upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
+float samples[L] = {0.0};		// buffer of L input samples, where 0 is newest, L-1 is oldest
+float errors[L] = {0.0};		// buffer of L error samples, where 0 is newest, L-1 is oldest
+float weights[L] = {0.0}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
+uint32_t micInsideOutside; 		// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
+uint16_t output;				// output to DAC
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,10 +121,10 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  // cheat code for enabling FPU SCB->CPACR |= ((3 << 10*2)|(3 << 11*2)); // ENABLE FPU
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
   hadc1->DMA_Handle->XferCpltCallback = FirLms_Filtering; // overwrite dma conversion complete function pointer
-
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)&output, 32, DAC_ALIGN_12B_R);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -500,7 +501,7 @@ void FirLms_Filtering_Prototype()
 {
 	short I;
 	long T;
-	float Yn=0, En=0;
+	float Yn=0;
 	// shift the buffers
 	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
 	memmove(errors+1, errors, sizeof(errors));
@@ -508,11 +509,11 @@ void FirLms_Filtering_Prototype()
 	errors[0] = (float)(micInsideOutside & 0xFFFF0000 >> 16); // save new value from feedback mic
 	// calculate filter output
 	for(I=L-1; I>=0; --I) // optimized loop
+	{
 		weights[I] = weights[I] + BETA*errors[0]*samples[I]; // this is normal equation, change into sign-error
 		Yn += (weights(I) * samples[I]);
-	// En = errors[0]
-	// update weights
-
+	}
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, Yn);
 
 }
 /* USER CODE END 4 */
