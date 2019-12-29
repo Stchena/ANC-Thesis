@@ -1,10 +1,30 @@
 \chapter{Software -- implementacja}
 \label{cha:software}
-
-
-
+W~tym rozdziale autor przedstawia sposób, w~jaki zaprogramowany został system. Uwzględnione oraz pokazane są tutaj różnice między typowym algorytmem FIR+LMS wspomnianym w~sekcji \ref{FIRLMS} rozdziału \ref{cha:teoria}, a~zaproponowanym przez autora wariantem rozwiązania i~charakterystycznym dla niego sposobem przetwarzania danych.
+ 
 \section{Schemat przetwarzania danych}
-%TODO napisac o FIR z LMS
+Schemat rozwiązania autora jest niemalże równoważny schematowi typowego algorytmu, różni się jednak kolejnością i~charakterem pewnych działań. Podczas gdy we~wspomnianym wcześniej wariancie błąd obliczany/mierzony jest na podstawie sygnału wyjściowego, tworzonego z~kolei na podstawie sygnału wejściowego oraz wartości współczynników w~danej chwili czasu, to w~wersji zaprojektowanej przez autora pomiar błędu następuje w~tej samej chwili, co pomiar sygnału wejściowego. Oznacza to zatem, że należy nieco zmienić kolejność wykonywanych czynności, co ukazuje poniższa tabela.
+\begin{table}[h]
+	\centering
+	\caption{Porównanie schematów przetwarzania danych dla wspomnianego wcześniej algorytmu oraz wersji użytej przez autora.}
+	\begin{tabular}{|p{.45\textwidth}|p{.45\textwidth}|}
+		
+		\toprule Klasyczny algorytm filtracji & Implementacja autora \\ \midrule
+		\begin{enumerate}	
+			\item Odczyt sygnału wejściowego x(n).
+			\item Obliczenie sygnału wyjściowego y(n).
+			\item Odczyt sygnału odsłuchowego e(n).
+			\item Aktualizacja wartości współczynników filtra w(n).
+		\end{enumerate} & 
+		\begin{enumerate}	
+			\item Odczyt sygnału wejściowego x(n) oraz sygnału odsłuchowego e(n).
+			\item Aktualizacja wartości współczynników filtra w(n).
+			\item Obliczenie sygnału wyjściowego y(n).
+		\end{enumerate}\\ \bottomrule
+	\end{tabular}
+\end{table}
+
+Kluczowe jest zatem zrozumienie, że w~n-tej chwili czasu mierzona jest wartość sygnału odsłuchowego odpowiadająca wartościom z~poprzedniej chwili czasu. Dlatego więc należy zaraz po odczytaniu zaktualizować wagi filtra, by zawsze obliczać sygnał wyjściowy na podstawie aktualnych danych.
 \section{Implementacja algorytmu}
 
 \section{Dobór nastaw algorytmu}
