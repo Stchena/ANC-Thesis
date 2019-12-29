@@ -37,6 +37,8 @@
 #define L 50				// Filter Order
 #define Fs 2000				// Sampling Frequency [Hz]
 #define DESIRED 0			// Desired signal
+#define V_REF 3				// V_REF applied to ADC and DAC
+#define RESOLUTION 4095		// ADC and DAC resolution 12bit
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,10 +62,9 @@ DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 float samples[L] = {0.0};		// buffer of L input samples, where 0 is newest, L-1 is oldest
-float errors[L] = {0.0};		// buffer of L error samples, where 0 is newest, L-1 is oldest
 float weights[L] = {0.0}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
 uint32_t micInsideOutside; 		// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
-uint16_t output;				// output to DAC
+uint16_t output = 0;			// output to DAC
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,10 +122,10 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  // cheat code for enabling FPU SCB->CPACR |= ((3 << 10*2)|(3 << 11*2)); // ENABLE FPU
+  HAL_TIM_Base_Start(&htim1); // start timer 1
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
   hadc1->DMA_Handle->XferCpltCallback = FirLms_Filtering; // overwrite dma conversion complete function pointer
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)&output, 32, DAC_ALIGN_12B_R);
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -501,19 +502,23 @@ void FirLms_Filtering_Prototype()
 {
 	short I;
 	long T;
+	float error = 0.0;
 	float Yn=0;
 	// shift the buffers
 	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
-	memmove(errors+1, errors, sizeof(errors));
-	samples[0] = (float)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
-	errors[0] = (float)(micInsideOutside & 0xFFFF0000 >> 16); // save new value from feedback mic
+	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
+	uint16_t feedback_sample = (uint16_t)(micInsideOutside & 0xFFFF0000 >> 16); // save new value from feedback mic
+
+	samples[0] = feedforward_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
+	error = feedback_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
 	// calculate filter output
-	for(I=L-1; I>=0; --I) // optimized loop
+	for(I=L-1; I>=0; --I)
 	{
-		weights[I] = weights[I] + BETA*errors[0]*samples[I]; // this is normal equation, change into sign-error
+		weights[I] = weights[I] + 2*BETA*error*samples[I]; // this is normal equation, consider change into sign-error
 		Yn += (weights(I) * samples[I]);
 	}
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, Yn);
+	output = (uint16_t)(Yn+V_REF/2)*RESOLUTION/V_REF;
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
 
 }
 /* USER CODE END 4 */
