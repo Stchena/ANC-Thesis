@@ -49,29 +49,54 @@ Wady:
 W przypadku takiego rozwiązania możliwe jest zastosowanie trzech różnych ogólnych implementacji. Wszystkie sposoby przedstawione zostaną poniżej na przykładzie słuchawek nausznych z~zamontowanym układem aktywnego tłumienia.
 \subsection{Feedforward}
 \label{feedforward}
-Jest to rozwiązanie polegające na zamocowaniu mikrofonu na zewnątrz muszli słuchawki. Dźwięk trafia do układu jeszcze zanim zostanie usłyszany przez użytkownika. W~tym czasie jest generowany sygnał przeciwstawny, który wytłumi odebrany hałas. W~torze przetwarzania sygnału umieszczony jest filtr, a~jego parametry muszą być dobrane stosownie do własności akustycznych słuchawek. Uzyskany w ten sposób sygnał podawany jest na głośnik umieszczony wewnątrz muszli słuchawki. Ponieważ typowy użytkownik zazwyczaj nie zakłada słuchawek dla samego efektu tłumienia, w~układzie stosuje się sumowanie sygnału anty-hałasu z~sygnałem muzyki, lub ogólnie, dźwięku słuchanego przez użytkownika.\\
-Zdecydowaną mocną stroną takiego rozwiązania jest fakt, iż mikrofon wyłapuje hałas wcześnie, co daje dostatecznie dużo czasu na wygenerowanie odpowiedzi. W~efekcie poprawia się nieco charakterystyka pracy układu w~zakresie wyższych częstotliwości.\\
-Niestety, takie rozwiązanie jest praktycznie nie do przyjęcia -- układ nie ma możliwości sprawdzenia jakości odpowiedzi, zatem po jednorazowym nastrojeniu filtra przez konstruktora można doprowadzić do sytuacji, w~której niepoprawnie dopasowane słuchawki z~aktywnym tłumieniem hałasu mogą ten hałas wzmacniać, zamiast tłumić.\\
-Kolejną wadą jest również zewnętrzny montaż mikrofonu -- staje się bardziej wrażliwy na zakłócenia, takie jak wiatr, co mogło nie być wzięte pod uwagę w~laboratoryjnych warunkach konstrukcyjnych.
+
+Jest to rozwiązanie polegające na zamocowaniu mikrofonu na zewnątrz muszli słuchawki. Dźwięk trafia do układu jeszcze zanim zostanie usłyszany przez użytkownika. W~tym czasie jest generowany sygnał przeciwstawny, który wytłumi odebrany hałas. W~torze przetwarzania sygnału umieszczony jest filtr, a~jego parametry muszą być dobrane stosownie do własności akustycznych słuchawek. Uzyskany w~ten sposób sygnał podawany jest na głośnik umieszczony wewnątrz muszli słuchawki. Ponieważ typowy użytkownik zazwyczaj nie zakłada słuchawek dla samego efektu tłumienia, w~układzie stosuje się sumowanie sygnału anty-hałasu z~sygnałem muzyki -- dźwięku słuchanego przez użytkownika.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.7]{../Assets/feedforward.png}
+	\caption{Schemat układu aktywnego tłumienia typu feedforward.}
+	\label{fig:feedforward}
+\end{figure}
+
+Zdecydowanie mocną stroną takiego rozwiązania jest fakt, iż mikrofon wyłapuje hałas wcześnie, co daje dostatecznie dużo czasu na wygenerowanie odpowiedzi. W~efekcie poprawia się nieco charakterystyka pracy układu w~zakresie wyższych częstotliwości.
+
+Niestety, takie rozwiązanie jest praktycznie nie do przyjęcia -- układ nie ma możliwości sprawdzenia jakości odpowiedzi, zatem po jednorazowym nastrojeniu filtra przez konstruktora można doprowadzić do sytuacji, w~której niepoprawnie dopasowane słuchawki z~aktywnym tłumieniem hałasu mogą ten hałas wzmacniać, zamiast tłumić. Kolejną wadą jest również zewnętrzny montaż mikrofonu -- staje się bardziej wrażliwy na zakłócenia, takie jak wiatr, co mogło nie być wzięte pod uwagę w~laboratoryjnych warunkach konstrukcyjnych.
 \subsection{Feedback}
 \label{feedback}
-To rozwiązanie jest dokładnie odwrotne niż poprzednie -- zamiast montować mikrofon na zewnątrz, montuje się go wewnątrz muszli. Sprawia to, że mikrofon otrzymuje dokładnie taki sam sygnał, jaki słyszy użytkownik. Otwiera to jednocześnie możliwość wprowadzenia systemu adaptacyjnego -- aby układ sam mógł dostrajać swoje parametry. Ta cecha oznacza równocześnie, że układ będzie znacznie mniej podatny na zakłócenia oraz niepoprawne założenie słuchawek.\\
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.7]{../Assets/feedback.png}
+	\caption{Schemat układu aktywnego tłumienia typu feedback.}
+	\label{fig:feedback}
+\end{figure}
+To rozwiązanie jest dokładnie odwrotne niż poprzednie -- zamiast montować mikrofon na zewnątrz, montuje się go wewnątrz muszli. Sprawia to, że mikrofon otrzymuje dokładnie taki sam sygnał, jaki słyszy użytkownik. Otwiera to jednocześnie możliwość wprowadzenia systemu adaptacyjnego -- aby układ sam mógł dostrajać swoje parametry. Ta cecha oznacza równocześnie, że układ będzie znacznie mniej podatny na zakłócenia oraz niepoprawne założenie słuchawek.
+
 Słabą stroną implementacji jest jednak fakt, że układ ma znacznie mniej czasu na przetworzenie sygnału i~wygenerowanie odpowiedzi, co sprawia, że zakres częstotliwości możliwych do wytłumienia zdecydowanie się obniża. W~skrajnym przypadku złego zaprojektowania układu, wadliwe ułożenie mikrofonu może spowodować zdestabilizowane sprzężenie zwrotne z~głośnikiem.
 \subsection{Feedforward-Feedback -- układ hybrydowy}
 \label{hybrid}
-Aby zneutralizować wady wyżej wymienionych implementacji, stosuje się ich połączenie hybrydowe -- układ feedforward-feedback. Mikrofon zewnętrzny generuje sygnał odpowiadający hałasowi z~otoczenia, co umożliwia tłumienie wyższych zakresów częstotliwości, zaś mikrofon wewnętrzny otwiera dla układu możliwość odsłuchu wygenerowanej odpowiedzi -- w~efekcie dając szansę na dostrojenie się do występujących warunków. Wraz z~użyciem dwóch mikrofonów zwiększa się jednak znaczenie białego szumu w~elementach systemu. Aby zminimalizować to zjawisko, trzeba zastosować dobrej jakości komponenty, co szybko mnoży koszty takiego rozwiązania.
+Aby zneutralizować wady wyżej wymienionych implementacji, stosuje się ich połączenie hybrydowe -- układ feedforward-feedback. Mikrofon zewnętrzny generuje sygnał odpowiadający hałasowi z~otoczenia, co umożliwia tłumienie wyższych zakresów częstotliwości, zaś mikrofon wewnętrzny otwiera dla układu możliwość odsłuchu wygenerowanej odpowiedzi -- w~efekcie dając szansę na dostrojenie się do występujących warunków. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.7]{../Assets/feedforward_feedback.png}
+	\caption{Schemat układu aktywnego tłumienia typu feedforward-feedback.}
+	\label{fig:feedforward_feedback}
+\end{figure}
+
+Wraz z~użyciem dwóch mikrofonów zwiększa się jednak znaczenie białego szumu w~elementach systemu. Aby zminimalizować to zjawisko, trzeba zastosować dobrej jakości komponenty, co szybko mnoży koszty takiego rozwiązania.
 \subsection{Adaptacyjny algorytm filtracji}
 \label{FIRLMS}
 Warto postawić pytanie -- dlaczego dobrze jest zwiększyć cenę implementacji na rzecz otrzymania adaptacyjności systemu?\\
 Taka funkcjonalność pozwala na zwiększenie stabilności, trwałości oraz jakości systemu poprzez autokorektę parametrów zaimplementowanego filtra. W~typowej konfiguracji sygnał z~mikrofonu zewnętrznego jest przepuszczany przez filtr i~podawany na wewnętrzny głośnik. Sygnały z obu mikrofonów -- wewnętrznego i~zewnętrznego -- są wykorzystywane do ustawicznego, adaptacyjnego dostrajania współczynników filtra tak, by wyciszyć wnętrze muszli nausznika. 
 
-Autor użył filtra typu FIR rzędu~50, czyli Finite Impulse Response, co w~polskim przekładzie oznacza filtr o~skończonej odpowiedzi impulsowej. Algorytmem optymalizującym współczynniki filtra jest LMS, czyli Least-Mean-Squares, który realizuje metodę najszybszego spadku. Typowy układ wspomniany przez autora przedstawiony jest na grafice \ref{fig:typical_fir_lms}.
-\begin{figure}
+Autor użył filtra typu FIR rzędu~50, czyli Finite Impulse Response, co w~polskim przekładzie oznacza filtr o~skończonej odpowiedzi impulsowej. Algorytmem optymalizującym współczynniki filtra jest LMS, czyli Least-Mean-Squares -- realizuje on metodę najszybszego spadku. Typowy układ wspomniany przez autora przedstawiony jest na grafice \ref{fig:typical_fir_lms}.
+\begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.75]{../Assets/typical_fir_lms.png}
+	\includegraphics[width=\linewidth]{../Assets/typical_fir_lms.png}
 	\caption{Typowy układ filtra adaptacyjnego do zastosowań tłumienia hałasu.}
 	\label{fig:typical_fir_lms}
 \end{figure}
+
+Sygnał x'(n), który dochodzi do mikrofonu odsłuchowego, to ten sam hałas x(n), który słyszy mikrofon główny. Jest on jednak przekształcony przez środowisko, odległość oraz współczynnik pasywnego tłumienia materiałów użytych w~słuchawkach.
 
 Sygnał wyjściowy, który generuje taki filtr, można obliczyć według następującego wzoru:\\
 \begin{center} $ y(n) = \sum_{k=0}^{N-1} w_k(n)*x(n-k) $ \end{center}
