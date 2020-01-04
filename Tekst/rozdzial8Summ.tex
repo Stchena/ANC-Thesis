@@ -1,11 +1,72 @@
 \chapter{Podsumowanie i wnioski}
 \label{cha:wnioski}
-
+W~tym rozdziale autor podsumowuje wyniki pomiarów z~poprzedniego rozdziału, ocenia jakość rozwiązania względem istniejącego rozwiązania komercyjnego oraz proponuje możliwe usprawnienia swojego projektu.
 \section{Ocena jakości rozwiązania}
+Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland, oraz kosztu nauszników ochronnych, zamyka się w~granicach~230~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
+\begin{table}[h!]
+	\centering
+	\caption{Wyliczenie kosztów poszczególnych elementów składowych projektu.}
+	\label{tab:costs}
+		\begin{tabular}{|p{.30\textwidth}|p{.30\textwidth}|p{.20\textwidth}|}
+		\toprule Element & Opis & Koszt \\ \midrule
+		\begin{enumerate}	
+			\item NUCLEO-F446RE
+			\item 2x Adafruit MAX4466
+			\item Adafruit PAM8302
+			\item Głośnik MG15
+			\item Nauszniki ochronne
+			\item Zestaw płytka stykowa + przewody + moduł zasilający
+		\end{enumerate} & 
+		\begin{enumerate}	
+			\item Płytka prototypowa z~mikrokontrolerem.
+			\item Mikrofon elektretowy ze wzmacniaczem audio.
+			\item Przedwzmacniacz audio dedykowany do głośników.
+			\item Głośnik \SI{0,1}{\W} o~impedancji \SI{8}{\Omega}
+			\item Typowe, tanie nauszniki ochronne ze sklepu BHP.
+			\item Podstawowy zestaw płytki stykowej 830 pól, przewody oraz moduł zasilający MB102.
+		\end{enumerate} &
+		\begin{enumerate}
+			\item 77,90 zł
+			\item 79,80 zł
+			\item 19,90 zł
+			\item 2,20 zł
+			\item 22,50 zł
+			\item 19,90 zł
+		\end{enumerate}\\ \bottomrule
+	\end{tabular}
+\end{table}
 
-Jabra Evolve 80 -- feedforward-feedback hybrydowy.\cite{JabraEvolve80} Prawdopodobnie używa analogowego toru tłumienia ze względu na zasilanie bateryjne układu -- w ten sposób zużycie energii jest dużo niższe, niż przy zastosowaniu układu cyfrowego.
+Zatem sumaryczny koszt takiego rozwiązania wynosi, według tabeli \ref{tab:costs}, 222,20 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby dużo niższa.
+
+W~porównaniu do słuchawek Jabra Elite 80, które można kupić w~cenie wahającej się między 1000~zł, a~1400~zł\footnote{Wyniki wyszukiwania serwisu ceneo.pl, stan z~dnia 04.01.2020.}, jest to dobra cena, jeśli weźmie się pod uwagę fakt, że dokupienie dodatkowych elementów i~zmodyfikowanie układu tak, by spełniał funkcję słuchawek, nie zwiększy jego ceny nawet dwukrotnie.
+
+TUTAJ WNIOSKI DALSZE I OCENA JAK TO W OGOLE DZIALA
 \section{Propozycja możliwych usprawnień}
+Biorąc pod uwagę decyzje konstrukcyjne, ograniczenia użytej platformy oraz wyniki testów, autor proponuje następujące usprawnienia swojego projektu:
+\begin{enumerate}
+	\item Użycie dedykowanej płytki z~mikrokontrolerem, zamiast płytki prototypowej, która zawiera niepotrzebne w~tym układzie elementy.\\
+	Pozwoliłoby to na obniżenie kosztów jednostki centralnej i~zmniejszenie wymiarów urządzenia -- przy użyciu dedykowanej płytki, można by od razu wytrawić na niej połączenia, które w~obecnym stanie łączone są poprzez płytkę stykową.
+	\item Dokładniejsze zamocowanie elementów w~słuchawce.\\
+	Obecnie, mikrofon główny, odsłuchowy i~głośnik połączone są dość luźno z~nausznikami. Urządzenie działałoby na pewno sprawniej, gdyby przytwierdzono te elementy na stałe i~dostosowano ich rozmiar oraz otoczenie do współpracy, gdyż w~tym momencie są to niezwiązane ze sobą części, połączone do celów prototypowych.
+	\item Rozszerzenie funkcjonalności urządzenia o~drugi kanał.\\
+	Dodanie kanału stereo, drugiego głośnika i~drugiego mikrofonu odsłuchowego pozwoliłoby na pełnoprawne korzystanie z~nauszników -- w~tym momencie jest to jedynie odgrodzona sferyczna przestrzeń, którą tworzą dwie złączone słuchawki.
+	\item Dodanie możliwości słuchania pożądanego sygnału w~urządzeniu.\\
+	Urządzenie obecnie jedynie tłumi sygnał -- mogłoby jednak tłumić i~jednocześnie odtwarzać muzykę lub inne pożądane dźwięki, tak jak robią to słuchawki komercyjne stosowane na rynku.
+	\item Ujednolicenie zasilania.\\
+	W~tym momencie cały system zasilany jest z~trzech punktów:
+	\begin{itemize}
+	\item Zasilanie USB przypięte do płytki prototypowej NUCLEO-F446RE,
+	\item Zasilanie USB przypięte do modułu zasilającego przedwzmacniacz audio,
+	\item Zasilanie bateryjne dostarczające energię do mikrofonów urządzenia.
+	\end{itemize}
+	Ograniczenie liczby podpięć układu do jednego ułatwiłoby używanie urządzenia i~zwiększyłoby jego mobilność.
+\end{enumerate}
 
+Powyższe propozycje są jedynie przykładowymi sposobami ulepszenia działania lub dodania nowych funkcjonalności urządzenia.
 \section{Wnioski ogólne}
+Prototypowanie urządzeń przy użyciu mikrokontrolerów STM32 jest prostsze względem projektowania układów analogowych lub cyfrowych nieużywających tego typu mikrokontrolera. Zapewnia to mnogość dokumentacji i~narzędzi dostarczanych na bieżąco przez producentów oprogramowania.
 
-Lorem \cite{HayAFT}	\cite{HayLMSAF}.
+Bardzo często wykorzystuje się mikrokontrolery do zaprojektowania i~przetestowania układu, który później zostaje wykonany w~wersji analogowej dla zaoszczędzenia energii i~zmniejszenia wymiarów ostatecznej postaci urządzenia.
+
+
+i tak dalej i tak dalej i żyli długo i szczęśliwie za siedmioma sinusami
