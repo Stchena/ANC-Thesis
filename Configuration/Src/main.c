@@ -38,7 +38,7 @@
 #define Fs 2000				// Sampling Frequency [Hz]
 #define DESIRED 0			// Desired signal
 #define V_REF 3				// V_REF applied to ADC and DAC
-#define RESOLUTION 4095		// ADC and DAC resolution 12bit
+#define RESOLUTION 4096		// ADC and DAC resolution 12bit
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,6 +61,7 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
+uint8_t enable = 1;				// should ANC be enabled? default: 1
 float samples[L] = {0.0};		// buffer of L input samples, where 0 is newest, L-1 is oldest
 float weights[L] = {0.0}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
 uint32_t micInsideOutside; 		// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
@@ -500,10 +501,13 @@ void FirLms_Filtering(void)
 
 void FirLms_Filtering_Prototype()
 {
+	if(!enable)
+	{
+		return; // probably not the best idea -- should blink diode or something
+	}
 	short I;
-	long T;
 	float error = 0.0;
-	float Yn=0;
+	float Yn = 0.0;
 	// shift the buffers
 	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
 	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
@@ -517,7 +521,7 @@ void FirLms_Filtering_Prototype()
 		weights[I] = weights[I] + 2*BETA*error*samples[I]; // this is normal equation, consider change into sign-error
 		Yn += (weights(I) * samples[I]);
 	}
-	output = (uint16_t)(Yn+V_REF/2)*RESOLUTION/V_REF;
+	output = (uint16_t)(Yn+V_REF/2)*(RESOLUTION-1)/V_REF;
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
 
 }
