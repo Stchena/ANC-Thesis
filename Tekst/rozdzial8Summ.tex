@@ -2,41 +2,31 @@
 \label{cha:wnioski}
 W~tym rozdziale autor podsumowuje wyniki pomiarów z~poprzedniego rozdziału, ocenia jakość rozwiązania względem istniejącego rozwiązania komercyjnego oraz proponuje możliwe usprawnienia swojego projektu.
 \section{Ocena jakości rozwiązania}
-Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland, oraz kosztu nauszników ochronnych, zamyka się w~granicach~230~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
+Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland oraz kosztu nauszników ochronnych, zamyka się w~granicach~230~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
 \begin{table}[h!]
 	\centering
 	\caption{Wyliczenie kosztów poszczególnych elementów składowych projektu.}
 	\label{tab:costs}
-		\begin{tabular}{|p{.30\textwidth}|p{.30\textwidth}|p{.20\textwidth}|}
-		\toprule Element & Opis & Koszt \\ \midrule
-		\begin{enumerate}	
-			\item NUCLEO-F446RE
-			\item 2x Adafruit MAX4466
-			\item Adafruit PAM8302
-			\item Głośnik MG15
-			\item Nauszniki ochronne
-			\item Zestaw płytka stykowa + przewody + moduł zasilający
-		\end{enumerate} & 
-		\begin{enumerate}	
-			\item Płytka prototypowa z~mikrokontrolerem.
-			\item Mikrofon elektretowy ze wzmacniaczem audio.
-			\item Przedwzmacniacz audio dedykowany do głośników.
-			\item Głośnik \SI{0,1}{\W} o~impedancji \SI{8}{\Omega}
-			\item Typowe, tanie nauszniki ochronne ze sklepu BHP.
-			\item Podstawowy zestaw płytki stykowej 830 pól, przewody oraz moduł zasilający MB102.
-		\end{enumerate} &
-		\begin{enumerate}
-			\item 77,90 zł
-			\item 79,80 zł
-			\item 19,90 zł
-			\item 2,20 zł
-			\item 22,50 zł
-			\item 19,90 zł
-		\end{enumerate}\\ \bottomrule
+		\begin{tabular}{|p{.25\textwidth} | p{.35\textwidth} | p{.10\textwidth}|}
+		\hline 
+		Element & Opis & Koszt \\ 
+		\hline\hline
+		NUCLEO-F446RE & Płytka prototypowa z~mikrokontrolerem. & 77,90 zł \\ 
+		\hline
+		Adafruit MAX4466 -- dwie sztuki & Mikrofon elektretowy ze wzmacniaczem audio. & 79,80 zł \\
+		\hline
+		Adafruit PAM8302 & Przedwzmacniacz audio dedykowany do głośników. & 19,90 zł \\
+		\hline
+		Głośnik MG15 & Głośnik \SI{0,1}{\W} o~impedancji \SI{8}{\Omega}. & 2,20 zł \\
+		\hline
+		Nauszniki ochronne & Typowe, tanie nauszniki ochronne ze sklepu BHP. & 22,50 zł \\
+		\hline
+		Zestaw płytka stykowa + przewody + moduł zasilający & Podstawowy zestaw płytki stykowej 830 pól, przewody oraz moduł zasilający MB102. & 19,90 zł \\
+		\hline
 	\end{tabular}
 \end{table}
 
-Zatem sumaryczny koszt takiego rozwiązania wynosi, według tabeli \ref{tab:costs}, 222,20 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby dużo niższa.
+Zatem, według tabeli \ref{tab:costs}, sumaryczny koszt takiego rozwiązania wynosi 222 ,20 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby zapewne istotnie niższa.
 
 W~porównaniu do słuchawek Jabra Elite 80, które można kupić w~cenie wahającej się między 1000~zł, a~1400~zł\footnote{Wyniki wyszukiwania serwisu ceneo.pl, stan z~dnia 04.01.2020.}, jest to dobra cena, jeśli weźmie się pod uwagę fakt, że dokupienie dodatkowych elementów i~zmodyfikowanie układu tak, by spełniał funkcję słuchawek, nie zwiększy jego ceny nawet dwukrotnie.
 
@@ -45,26 +35,40 @@ TUTAJ WNIOSKI DALSZE I OCENA JAK TO W OGOLE DZIALA
 Biorąc pod uwagę decyzje konstrukcyjne, ograniczenia użytej platformy oraz wyniki testów, autor proponuje następujące usprawnienia swojego projektu:
 \begin{enumerate}
 	\item Użycie dedykowanej płytki z~mikrokontrolerem, zamiast płytki prototypowej, która zawiera niepotrzebne w~tym układzie elementy.\\
-	Pozwoliłoby to na obniżenie kosztów jednostki centralnej i~zmniejszenie wymiarów urządzenia -- przy użyciu dedykowanej płytki, można by od razu wytrawić na niej połączenia, które w~obecnym stanie łączone są poprzez płytkę stykową.
+	Pozwoliłoby to na obniżenie kosztów jednostki centralnej i~zmniejszenie wymiarów urządzenia -- przy użyciu dedykowanej płytki, można by od razu poprowadzić na niej połączenia, które w~obecnym stanie realizowane są poprzez płytkę stykową.
 	\item Dokładniejsze zamocowanie elementów w~słuchawce.\\
-	Obecnie, mikrofon główny, odsłuchowy i~głośnik połączone są dość luźno z~nausznikami. Urządzenie działałoby na pewno sprawniej, gdyby przytwierdzono te elementy na stałe i~dostosowano ich rozmiar oraz otoczenie do współpracy, gdyż w~tym momencie są to niezwiązane ze sobą części, połączone do celów prototypowych.
+	Obecnie, mikrofon główny, odsłuchowy i~głośnik połączone są dość luźno z~nausznikami. Urządzenie działałoby na pewno sprawniej, gdyby przytwierdzono te elementy na stałe i~dostosowano ich rozmiar oraz otoczenie do współpracy, gdyż obecnie są to niezwiązane ze sobą części, połączone do celów prototypowych.
 	\item Rozszerzenie funkcjonalności urządzenia o~drugi kanał.\\
 	Dodanie kanału stereo, drugiego głośnika i~drugiego mikrofonu odsłuchowego pozwoliłoby na pełnoprawne korzystanie z~nauszników -- w~tym momencie jest to jedynie odgrodzona sferyczna przestrzeń, którą tworzą dwie złączone słuchawki.
 	\item Dodanie możliwości słuchania pożądanego sygnału w~urządzeniu.\\
-	Urządzenie obecnie jedynie tłumi sygnał -- mogłoby jednak tłumić i~jednocześnie odtwarzać muzykę lub inne pożądane dźwięki, tak jak robią to słuchawki komercyjne stosowane na rynku.
+	Urządzenie obecnie jedynie tłumi sygnał -- mogłoby jednak tłumić hałas, a~jednocześnie odtwarzać muzykę lub inne pożądane dźwięki, tak jak robią to słuchawki komercyjne stosowane na rynku.
 	\item Ujednolicenie zasilania.\\
-	W~tym momencie cały system zasilany jest z~trzech punktów:
+	W~tym momencie cały system zasilany jest z~trzech źródeł:
 	\begin{itemize}
-	\item Zasilanie USB przypięte do płytki prototypowej NUCLEO-F446RE,
-	\item Zasilanie USB przypięte do modułu zasilającego przedwzmacniacz audio,
+	\item Zasilanie USB doprowadzone do płytki prototypowej NUCLEO-F446RE,
+	\item Zasilanie USB doprowadzone do modułu zasilającego przedwzmacniacz audio,
 	\item Zasilanie bateryjne dostarczające energię do mikrofonów urządzenia.
 	\end{itemize}
-	Ograniczenie liczby podpięć układu do jednego ułatwiłoby używanie urządzenia i~zwiększyłoby jego mobilność.
+	Ograniczenie liczby połączeń układu do jednego ułatwiłoby używanie urządzenia i~zwiększyłoby jego mobilność.
+	\item Dodanie algorytmu estymacji i~eliminacji składowej stałej z~sygnałów pochodzących z~przedwzmacniaczy mikrofonowych.\\
+	PLACEHOLDER
+	\item Rozszerzenie zakresu częstotliwości w~którym efektywnie działa aktywne tłumienie szumów.\\
+	Górną częstotliwość przedziału podniosłoby zwiększenie częstotliwości próbkowania, zaś dolną -- zwiększenie długości filtra.
+	\item Zastosowanie bardziej rozbudowanych bądź zmodyfikowanych wersji algorytmu LMS.\\
+	PLACEHOLDER
+	\item Wykorzystanie trybu obniżonego poboru energii przez mikrokontroler.\\
+	Interesuje nas taki tryb, w~którym rdzeń usypia, ale pracują peryferia i~w~którym rdzeń można wybudzić przerwaniem.
+	\item Optymalizacja kosztów urządzenia.
+	\item Obniżenie częstotliwości taktowania poszczególnych podzespołów mikrokontrolera w~celu obniżenia pobory mocy.
+	\item Dodanie łączności bezprzewodowej.\\
+	Można  na przykład użyć modułu Bluetooth -- urządzenie spełniałoby wtedy funkcję słuchawek bezprzewodowych.
+	\item Dodanie układu zarządzania akumulatorem.
+	Układy BMS (Battery Management System) pomagają w~bardziej ekonomiczny sposób zużywać energię, co przekładałoby się na tańszą eksploatację urządzenia i~jego wydłużone działanie na jednym ładowaniu.
 \end{enumerate}
 
 Powyższe propozycje są jedynie przykładowymi sposobami ulepszenia działania lub dodania nowych funkcjonalności urządzenia.
 \section{Wnioski ogólne}
-Prototypowanie urządzeń przy użyciu mikrokontrolerów STM32 jest prostsze względem projektowania układów analogowych lub cyfrowych nieużywających tego typu mikrokontrolera. Zapewnia to mnogość dokumentacji i~narzędzi dostarczanych na bieżąco przez producentów oprogramowania.
+Prototypowanie urządzeń przy użyciu mikrokontrolerów STM32 jest prostsze w~stosunku do projektowania układów analogowych lub cyfrowych nieużywających tego typu mikrokontrolera. Zapewnia to mnogość dokumentacji i~narzędzi dostarczanych na bieżąco przez producentów oprogramowania.
 
 Bardzo często wykorzystuje się mikrokontrolery do zaprojektowania i~przetestowania układu, który później zostaje wykonany w~wersji analogowej dla zaoszczędzenia energii i~zmniejszenia wymiarów ostatecznej postaci urządzenia.
 
