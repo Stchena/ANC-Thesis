@@ -23,12 +23,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -39,6 +38,8 @@
 #define DESIRED 0			// Desired signal
 #define V_REF 3				// V_REF applied to ADC and DAC
 #define RESOLUTION 4096		// ADC and DAC resolution 12bit
+
+#define TEST_DURATION 15	// test duration in seconds (remember to give +3sec for operator to stop test -- prevent buffer overwrite)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -53,7 +54,6 @@ DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 
 DAC_HandleTypeDef hdac;
-DMA_HandleTypeDef hdma_dac1;
 
 TIM_HandleTypeDef htim1;
 
@@ -61,11 +61,15 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-uint8_t enable = 1;				// should ANC be enabled? default: 1
+volatile uint8_t enable = 1;	// should ANC be enabled? default: 1
+
+volatile uint8_t on_off_button = 0;
+
 float samples[L] = {0.0};		// buffer of L input samples, where 0 is newest, L-1 is oldest
 float weights[L] = {0.0}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
-uint32_t micInsideOutside; 		// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
-uint16_t output = 0;			// output to DAC
+uint32_t micInsideOutside = 0; 	// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
+uint16_t output = 0;			// output of FIR filter to DAC
+uint16_t uart_tx_buffer[Fs*(TEST_DURATION+3)] = {0};	// buffer to send data on button click
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,8 +82,8 @@ static void MX_DAC_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-void FirLms_Filtering(void);
 void FirLms_Filtering_Prototype();
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -123,16 +127,18 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start(&htim1); // start timer 1
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
-  hadc1->DMA_Handle->XferCpltCallback = FirLms_Filtering; // overwrite dma conversion complete function pointer
+  HAL_TIM_Base_Start(&htim1); // start timer 1
+  //hadc1.DMA_Handle->XferCpltCallback = FirLms_Filtering; // overwrite dma conversion complete function pointer
   HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_UART_Receive_IT(&huart2, (uint8_t*)&on_off_button, 1); // wait for input from testing PC
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -444,13 +450,10 @@ static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA1_Stream6_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
@@ -481,6 +484,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin : Blue_button_Pin */
+  GPIO_InitStruct.Pin = Blue_button_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Blue_button_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : LD2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -488,42 +497,58 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
+/*HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size)
+{
+	//placeholder
+	return HAL_OK;
+}*/
 /*
  *@brief FIR with LMS Algorithm filtering
  */
-void FirLms_Filtering(void)
-{
-	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle PA5 which has LED connected
-}
+
 
 void FirLms_Filtering_Prototype()
 {
-	if(!enable)
-	{
-		return; // probably not the best idea -- should blink diode or something
-	}
+	static int buffer_count = 0;
+	if(!enable) return; // probably not the best idea -- should blink diode or something
+	if(buffer_count >= Fs*(TEST_DURATION+3)) buffer_count=0; // reset buffer_count after to create circular buffer -- this may cause problems
 	short I;
 	float error = 0.0;
 	float Yn = 0.0;
-	// shift the buffers
+	// shift the buffer
 	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
 	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
 	uint16_t feedback_sample = (uint16_t)(micInsideOutside & 0xFFFF0000 >> 16); // save new value from feedback mic
 
-	samples[0] = feedforward_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
-	error = feedback_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
+	uart_tx_buffer[buffer_count++] = feedback_sample; // save to buffer first, THEN increment counter
+
+	samples[0] = (float)feedforward_sample*V_REF/RESOLUTION - (float)V_REF/2; // convert to float according to resolution
+	error = (float)feedback_sample*V_REF/RESOLUTION - (float)V_REF/2; // convert to float according to resolution
 	// calculate filter output
 	for(I=L-1; I>=0; --I)
 	{
 		weights[I] = weights[I] + 2*BETA*error*samples[I]; // this is normal equation, consider change into sign-error
-		Yn += (weights(I) * samples[I]);
+		Yn += (weights[I] * samples[I]);
 	}
-	output = (uint16_t)(Yn+V_REF/2)*(RESOLUTION-1)/V_REF;
+	output = (uint16_t)((Yn+V_REF/2)*(RESOLUTION-1)/V_REF);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
 
+}
+void UartTransmitDMA(void)
+{
+	HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION); // BUFFER DATA IN MEMORY FOR 15 SEC THEN SEND ALL AT ONCE AFTER EXPERIMENT
+}
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	// FirLms_Filtering_Prototype();
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle PA5 which has LED connected
 }
 /* USER CODE END 4 */
 
