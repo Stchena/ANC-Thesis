@@ -1,17 +1,6 @@
 \chapter{Walidacja rozwiązania}
 \label{cha:tests}
 Po wstępnym nastrojeniu układu, należy uruchomić oraz przetestować urządzenie. Autor zapoznał się w~tym celu z~normą dotyczącą mierzenia poziomu natężenia hałasu \cite{test_norm}, jednak ze względów subiektywnych zastosował się jedynie do zaleceń traktujących o~metodzie pomiarowej, nie zaś do dokładnego sposobu wykonania pomiaru. Zarówno sposób, jak i~wyniki pomiarów, opisane są w~sekcji \ref{sec:practical_test}.
-\section{Układ symulowany w środowisku MATLAB/Simulink}
-Celem zbadania zachowania algorytmu, autor utworzył model filtra FIR-LMS w~środowisku obliczeniowym MATLAB/Simulink. Model ukazano na rysunku \ref{fig:model_rys}.
-\begin{figure}[h!]
-	\centering
-	\includegraphics[scale=0.5]{../Assets/model_anc_rys.pdf}
-	\caption{Schemat modelu algorytmu aktywnego tłumienia hałasu wykonanego w~pakiecie MATLAB/Simulink.}
-	\label{fig:model_rys}
-\end{figure}
-
-Jako wejście główne podano losowo generowany sygnał, zaś jako wejście sygnału pożądanego podano odwrotność głównego sygnału. Następnie, autor wyświetlił na blokach ,,Scope'' wartości sygnałów wyjściowych. PLACEHOLDER odnośnie dodatkowych rzeczy czyli wykresy itp.
-
 \section{Test praktyczny}
 \label{sec:practical_test}
 Celem sprawdzenia jakości zbudowanego urządzenia, autor dokonał testu praktycznego, w~którym zmierzył poziom natężenia dźwięku w~pewnym pomieszczeniu ze stałym, powtarzalnym typem hałasu, w~trzech wariantach -- bez tłumienia, tylko z~tłumieniem pasywnym, oraz z~tłumieniem pasywnym i~uruchomionym tłumieniem aktywnym pochodzącym z~zaprogramowanego układu.
@@ -57,7 +46,7 @@ Widmo częstotliwościowe zamieszczono na rysunku \ref{fig:widmo_aktywnie}.
 	\label{fig:widmo_aktywnie}
 \end{figure}
 
-Dodatkowo, aby porównać zbudowany układ do istniejącego rozwiązania rynkowego, ten sam pomiar wykonano dla słuchawek Jabra Elite~80. Tak jak urządzenie autora, używają one podejścia feedforward-feedback.\cite{JabraEvolve80} Sposób realizacji rozwiązania (analogowy czy cyfrowy) nie jest nigdzie wyjawiony, można jednak domniemywać użycie analogowego toru tłumienia ze względu na dużo niższe zużycie energii elektrycznej oraz wymiary takiego układu. Słuchawki podłączono do komputera osobistego i~umieszczono w~tym samym miejscu, w~którym wcześniej mierzono urządzenie autora. Sygnał z~wnętrza słuchawek zbierano poprzez włożenie do muszli słuchawek komercyjnych mikrofonu odsłuchowego z~urządzenia autora (wciąż podpiętego do mikrokontrolera) i~przesyłanie danych z~niego (za pośrednictwem modułu komunikacji UART) do komputera monitorującego test. Średni poziom hałasu wewnątrz słuchawek firmowych zmierzony w~ten sposób wyniósł PLACEHOLDER4. Widmo częstotliwościowe tak zmierzonego dźwięku pokazano na rysunku \ref{fig:widmo_jabra}.
+Dodatkowo, aby porównać zbudowany układ do istniejącego rozwiązania rynkowego, ten sam pomiar wykonano dla słuchawek Jabra Elite~80. Tak jak urządzenie autora, używają one podejścia feedforward-feedback.\cite{JabraEvolve80} Sposób realizacji rozwiązania (analogowy czy cyfrowy) nie jest nigdzie wyjawiony, można jednak domniemywać użycie analogowego toru tłumienia ze względu na dużo niższe zużycie energii elektrycznej oraz wymiary takiego układu. Słuchawki podłączono do komputera osobistego i~umieszczono w~tym samym miejscu, w~którym wcześniej mierzono urządzenie autora. Sygnał z~wnętrza słuchawek zbierano poprzez włożenie do muszli słuchawek komercyjnych mikrofonu odsłuchowego z~urządzenia autora (wciąż podpiętego do mikrokontrolera) i~przesłanie danych z~niego (za pośrednictwem modułu komunikacji UART) do komputera monitorującego test. Średni poziom hałasu wewnątrz słuchawek firmowych zmierzony w~ten sposób wyniósł PLACEHOLDER4. Widmo częstotliwościowe tak zmierzonego dźwięku pokazano na rysunku \ref{fig:widmo_jabra}.
 \begin{figure}[h!]
 	\centering
 	\includegraphics{../Assets/widmo_jabra.png}	

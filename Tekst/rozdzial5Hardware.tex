@@ -21,7 +21,7 @@ Konfigurację systemu należy rozpocząć od uruchomienia wszystkich wymienionyc
 	\item Przetwornik cyfrowo-analogowy\\
 	Ten komponent, w~przeciwieństwie do poprzedniego, nie posiada tak wiele opcji konfiguracyjnych. Wybrano tutaj transfer jednokanałowy, gdyż układ emitował będzie sygnał monofoniczny. Gdyby układ miał spełniać funkcję słuchawek stereo z~dwoma kanałami, można byłoby wtedy otworzyć drugi kanał tego przetwornika. Ponieważ nie wybrano żadnego trybu wyzwalacza, konwersja następuje automatycznie po upłynięciu jednego cyklu zegara APB1 (o~częstotliwości \SI{84}{\MHz}) od momentu wpisania nowej wartości do odpowiedniego rejestru.
 	\item Kontroler DMA nr~1\\
-	PLACEHOLDER
+	Kontroler użyty jest do transferu zbuforowanych danych odsłuchowych z~pamięci urządzenia do kontrolera UART, który następnie wysyła te dane do komputera walidującego.
 	\item Kontroler DMA nr~2\\
 	Ten element jest konieczny do prawidłowego funkcjonowania przetworników ADC w~trybie dualnym. Gdy przetworniki skończą konwersję, 12-bitowe wyniki tego działania zapisywane są do zmiennych 16-bitowych, które następnie łączone są w~jedną zmienną 32-bitową (bity wyników zapisywane są w~tej zmiennej w~kolejności dane z~ADC2, a~następnie dane z~ADC1). Taka pojedyncza zmienna 32-bitowa jest następnie transferowana przez kontroler DMA do pamięci mikrokontrolera, skąd należy wyłuskać pojedyncze wyniki konwersji. Jest to charakterystyczne zachowanie kontrolera DMA w~trybie~2,~który jest automatycznym trybem pracy przy dwóch przetwornikach z~jednoczesną konwersją.
 	\item USART (Universal Synchronous/Asynchronous Receiver/Transmitter)\\

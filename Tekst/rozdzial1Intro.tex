@@ -28,7 +28,7 @@ W~dalszej części pracy, w~rozdziale V, zostanie bliżej opisana obliczeniowa p
 
 Następnym etapem pracy jest implementacja algorytmu, co zostanie przedstawione dokładnie w~rozdziale VI. Autor przybliży schemat przetwarzania danych, opisze zastosowany algorytm, zaimplementuje go oraz dobierze jego początkowe nastawy.
 
-Wreszcie, po stworzeniu kompletnego systemu, w~rozdziale VII zostanie on porównany z~symulacją komputerową MATLAB/Simulink oraz wykonany będzie test praktyczny w~środowisku podatnym na hałas.
+Wreszcie, po stworzeniu kompletnego systemu, w~rozdziale VII wykonany będzie test praktyczny w~środowisku podatnym na hałas. Autor porówna urządzenie z~istniejącym na rynku rozwiązaniem.
 
 Na końcu, w~rozdziale VIII autor podsumuje efekty projektu oceniając jego jakość w~porównaniu do istniejących rozwiązań komercyjnych, wyciągnie wnioski i~zaproponuje możliwe usprawnienia systemu.
 \section{Przegląd literatury}
@@ -43,7 +43,5 @@ Aby zastosować się do powszechnie stosowanych i~uznawanych praktyk pracy z~sys
 Celem wybrania konkretnego podejścia, autor użył źródeł internetowych, własnych doświadczeń z~platformami sprzętowymi oraz wykonał podstawowe testy opóźnień czasowych sterowników dźwięku ALSA na mikrokomputerze Raspberry Pi Model 3B.
 
 Wreszcie, po podjęciu decyzji odnośnie platformy, na której realizowany będzie cały system, autor użył dokumentacji, not katalogowych i~podręczników użytkownika dostarczanych przez producentów stosowanej platformy sprzętowej oraz używanych peryferiów (\cite{speakeropamp, RM0390}). Skorzystanie z~wymienionych pozycji jest niezbędne, gdyż bez nich nie można dopasować urządzeń peryferyjnych (mikrofony, głośniki, wzmacniacze) bez narażania układu na uszkodzenie lub w~najlepszym wypadku -- na obniżenie jakości.
-
-Podczas tworzenia symulacji komputerowych równie ważna okazała się dokumentacja pakietu oprogramowania do obliczeń numerycznych i~symulacji komputerowych MATLAB/Simulink. 
 
 Ostatecznie, podczas testów, autor bazował na normie ISO~3740:2019 \cite{test_norm}, traktującej o~sposobach mierzenia poziomu natężenia dźwięku. Ponieważ test polegał na porównaniu działania systemu zbudowanego przez autora z~wybranym istniejącym, komercyjnym rozwiązaniem, skorzystano z~dokumentacji słuchawek Jabra~Evolve~80 \cite{JabraEvolve80}, w której można znaleźć podstawowe informacje o~zastosowanym w~słuchawkach rozwiązaniu ANC (Active Noise Control -- Aktywne Tłumienie Hałasu).
