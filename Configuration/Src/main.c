@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include <stdio.h> // consider overhead from including this lib...
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,11 +34,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BETA 0.01			// LMS Convergence Rate
+#define BETA 0.001f			// LMS Convergence Rate
 #define L 50				// Filter Order
 #define Fs 2000				// Sampling Frequency [Hz]
 #define DESIRED 0			// Desired signal
-#define V_REF 3				// V_REF applied to ADC and DAC
+#define V_REF 3.0f			// V_REF applied to ADC and DAC
 #define RESOLUTION 4096		// ADC and DAC resolution 12bit
 
 #define TEST_DURATION 15	// test duration in seconds (remember to give +3sec for operator to stop test -- prevent buffer overwrite)
@@ -55,21 +57,19 @@ DMA_HandleTypeDef hdma_adc2;
 
 DAC_HandleTypeDef hdac;
 
-TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 volatile uint8_t enable = 1;	// should ANC be enabled? default: 1
-
-volatile uint8_t on_off_button = 0;
-
-float samples[L] = {0.0};		// buffer of L input samples, where 0 is newest, L-1 is oldest
-float weights[L] = {0.0}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
-uint32_t micInsideOutside = 0; 	// upper half word is hadc2, lower half word is hadc1 -- this is DMA Mode 2 behavior
+float samples[L] = {0.0f};		// buffer of L input samples, where 0 is newest, L-1 is oldest
+float weights[L] = {0.0f}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
+volatile uint32_t micInsideOutside = 0; 	// upper half word is hadc2, lower half word is hadc1 -- this is ADC in DMA Mode 2 behaviour
 uint16_t output = 0;			// output of FIR filter to DAC
-uint16_t uart_tx_buffer[Fs*(TEST_DURATION+3)] = {0};	// buffer to send data on button click
+volatile uint16_t buffer_count = 0;		// uart_tx_buffer count
+uint16_t uart_tx_buffer[Fs*(TEST_DURATION+3)] = {1};	// buffer to send data on button click
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,11 +79,11 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_DAC_Init(void);
-static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 void FirLms_Filtering_Prototype();
-
+void LMS_Weights_Init(float* weights);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -124,21 +124,24 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_DAC_Init();
-  MX_TIM1_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
-  HAL_TIM_Base_Start(&htim1); // start timer 1
-  //hadc1.DMA_Handle->XferCpltCallback = FirLms_Filtering; // overwrite dma conversion complete function pointer
-  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+  //LMS_Weights_Init(weights);
 
+  HAL_ADC_Start(&hadc2);
+  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 4);
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+  HAL_TIM_Base_Start(&htim3); // start timer 1
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1); // wait for input from testing PC
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_UART_Receive_IT(&huart2, (uint8_t*)&on_off_button, 1); // wait for input from testing PC
+	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -217,7 +220,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING;
-  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = ENABLE;
@@ -337,76 +340,60 @@ static void MX_DAC_Init(void)
 }
 
 /**
-  * @brief TIM1 Initialization Function
+  * @brief TIM3 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM1_Init(void)
+static void MX_TIM3_Init(void)
 {
 
-  /* USER CODE BEGIN TIM1_Init 0 */
+  /* USER CODE BEGIN TIM3_Init 0 */
 
-  /* USER CODE END TIM1_Init 0 */
+  /* USER CODE END TIM3_Init 0 */
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
-  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
-  /* USER CODE BEGIN TIM1_Init 1 */
+  /* USER CODE BEGIN TIM3_Init 1 */
 
-  /* USER CODE END TIM1_Init 1 */
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 500-1;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 8400-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 5-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
   }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
+  if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_TIMING;
-  sConfigOC.Pulse = 250;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-  if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
-  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 0;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM1_Init 2 */
+  /* USER CODE BEGIN TIM3_Init 2 */
 
-  /* USER CODE END TIM1_Init 2 */
+  /* USER CODE END TIM3_Init 2 */
 
 }
 
@@ -504,20 +491,36 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/*HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size)
+void LMS_Weights_Init(float* weights)
 {
-	//placeholder
-	return HAL_OK;
-}*/
+	int i;
+	for(i=L-1; i>=0; i--) weights[i]=0.01f;
+}
+/*
+ *@brief UART Receive Callback -- Used for enable/disable algorithm from PC
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	switch(atoi((uint8_t*)&enable))
+	{
+	case 0:
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+		HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION);
+		break;
+	case 1:
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		break;
+	default:
+		break;
+	}
+	HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1); // enable await-receive again
+}
 /*
  *@brief FIR with LMS Algorithm filtering
  */
-
-
 void FirLms_Filtering_Prototype()
 {
-	static int buffer_count = 0;
-	if(!enable) return; // probably not the best idea -- should blink diode or something
+	if(!enable) return;
 	if(buffer_count >= Fs*(TEST_DURATION+3)) buffer_count=0; // reset buffer_count after to create circular buffer -- this may cause problems
 	short I;
 	float error = 0.0;
@@ -525,21 +528,23 @@ void FirLms_Filtering_Prototype()
 	// shift the buffer
 	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
 	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
-	uint16_t feedback_sample = (uint16_t)(micInsideOutside & 0xFFFF0000 >> 16); // save new value from feedback mic
+	uint16_t feedback_sample = (uint16_t)((micInsideOutside & 0xFFFF0000) >> 16); // save new value from feedback mic
 
-	uart_tx_buffer[buffer_count++] = feedback_sample; // save to buffer first, THEN increment counter
-
-	samples[0] = (float)feedforward_sample*V_REF/RESOLUTION - (float)V_REF/2; // convert to float according to resolution
-	error = (float)feedback_sample*V_REF/RESOLUTION - (float)V_REF/2; // convert to float according to resolution
+	uart_tx_buffer[buffer_count] = feedback_sample; // save to buffer first, THEN increment counter
+	buffer_count++;
+	samples[0] = feedforward_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
+	error = feedback_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
 	// calculate filter output
 	for(I=L-1; I>=0; --I)
 	{
-		weights[I] = weights[I] + 2*BETA*error*samples[I]; // this is normal equation, consider change into sign-error
+		weights[I] = weights[I] + BETA*error*samples[I]; // this is normal equation, consider change into sign-error
 		Yn += (weights[I] * samples[I]);
 	}
+	Yn > (V_REF/2) ? Yn=V_REF/2 :
+			Yn < (-V_REF/2) ? Yn=-V_REF/2 : Yn;
 	output = (uint16_t)((Yn+V_REF/2)*(RESOLUTION-1)/V_REF);
+	if(output>4095) output = 4095; // sanitize output
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
-
 }
 void UartTransmitDMA(void)
 {
@@ -547,8 +552,11 @@ void UartTransmitDMA(void)
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	// FirLms_Filtering_Prototype();
-	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle PA5 which has LED connected
+	if(enable){
+		FirLms_Filtering_Prototype();
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle PA5 which has LED connected
+	}
+	//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 }
 /* USER CODE END 4 */
 
