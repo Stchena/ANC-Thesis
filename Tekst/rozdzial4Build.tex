@@ -16,14 +16,14 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 	\item Analogowe:
 	\begin{itemize}
 		\item Pojemnościowy mikrofon elektretowy typu CMA-4544PF-W (rys. \ref{fig:mikrofony_max4466}) -- dwie sztuki\\
+		W~urządzeniu zamontowano jeden główny (feedforward) na zewnątrz muszli oraz jeden odsłuchowy (feedback) wewnątrz muszli słuchawki.
+		\item Przedwzmacniacz mikrofonowy typu Adafruit MAX4466 -- dwie sztuki\\
 		\begin{figure}[h!]
 			\centering
 			\includegraphics[scale=0.2]{../Assets/adafruit_max4466.png}
 			\caption{Użyte w~projekcie mikrofony z~przedwzmacniaczami.\\ Źródło: https://cdn-shop.adafruit.com/970x728/1063-03.jpg}
 			\label{fig:mikrofony_max4466}
 		\end{figure}
-		W~urządzeniu zamontowano jeden główny (feedforward) na zewnątrz muszli oraz jeden odsłuchowy (feedback) wewnątrz muszli słuchawki.
-		\item Przedwzmacniacz mikrofonowy typu Adafruit MAX4466 -- dwie sztuki\\
 		Wzmacniacz operacyjny zoptymalizowany przez producenta pod kątem wykorzystania z~mikrofonami. Autor zakupił przedwzmacniacz połączony przez producenta z~wyżej wymienionym mikrofonem w~ramach jednej płytki (rys. \ref{fig:mikrofony_max4466}). Należy pamiętać o~przesunięciu fazy sygnału -- jednak ten problem powinien zostać rozwiązany przez filtr adaptacyjny.
 		\item Wzmacniacz audio klasy D typu Adafruit PAM8302 (rys. \ref{fig:pam8302})\\
 		\begin{figure}[h!]
@@ -46,8 +46,10 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 		\item Przetwornik analogowo-cyfrowy -- dwie sztuki\\
 		Autor zdecydował się użyć dwóch osobnych przetworników do akwizycji sygnału z~mikrofonów, aby uniknąć przesłuchów, które mogłyby się pojawić w~przypadku użycia pojedynczego przetwornika. Przyczyną przesłuchów jest zwykle multiplekser analogowy wybierający kanały wejściowe przetwornika A/C. Takie rozwiązanie zmniejsza też nieznacznie opóźnienia w~przetworzeniu sygnału, gdyż można wtedy skonfigurować przetworniki w~trybie mierzenia pojedynczego kanału, a~nie skanowania po kolei wszystkich dostępnych~16. Przetwornik realizuje algorytm SAR\footnote{Sukcesywna Aproksymacja (ang. Successive Approximation Register, inaczej próbkowanie bitowe)}.\\
 		Warto zauważyć, że przetworniki dostępne na płytce użytej przez autora mają rozdzielczość 12~bitów, co pozostawia pewne pole do poprawy projektu i~wyboru komponentów, ale jednocześnie zapewnia wystarczający poziom dokładności dla potrzeb prototypowania układu.
+		\item Timer (Licznik)\\
+		Do zadania wyznaczenia stałego kroku konwersji wybrano timer~3. Jest to podstawowy licznik mikrokontrolera, bez dodatkowych funkcjonalności (jakie posiada chociażby timer~1). Odmierzenie zadanego interwału czasowego sygnalizowane jest wewnętrznie jako zdarzenie, które wychwytuje przetwornik A/C. Jego konfiguracja została opisana w~sekcji~\ref{sec:configuration}.
 		\item Kontroler DMA (Direct Memory Access) -- dwie sztuki\\
-		Jeden z~kontrolerów użyty jest do transferu danych z~przetworników~A/C do pamięci mikrokontrolera STM32, zaś drugi - do transferu (po przeprowadzeniu eksperymentu) danych mikrofonu odsłuchowego z~pamięci do kontrolera UART. Transfer w~pierwszym przypadku dokonywany jest w~trybie ciągłym, a~więc po każdym przerwaniu do DMA zgłoszonym przez przetwornik na końcu konwersji. W~drugim przypadku, transfer wywoływany jest po wciśnięciu przez testera przycisku na płytce prototypowej.
+		Jeden z~kontrolerów użyty jest do transferu danych z~przetworników~A/C do pamięci mikrokontrolera STM32, zaś drugi - do transferu (po przeprowadzeniu eksperymentu) danych mikrofonu odsłuchowego z~pamięci do kontrolera UART. Transfer w~pierwszym przypadku dokonywany jest w~trybie ciągłym, a~więc po każdym przerwaniu do DMA zgłoszonym przez przetwornik na końcu konwersji. W~drugim przypadku, transfer wywoływany jest po wciśnięciu przez testera przycisku na płytce prototypowej lub wysłaniu odpowiedniej komendy z~komputera~PC.
 		\item NVIC (Nested Vectored Interrupt Controller)\\
 		Kontroler przerwań (zagnieżdżonych), który przyspiesza ich obsługę.
 		\item Rdzeń mikrokontrolera\\
@@ -89,6 +91,6 @@ Mikrofon odsłuchowy umiejscowiony w~optymalnej pozycji charakteryzuje się zlin
 	\label{fig:error_mic_placement}
 \end{figure}
 
-Aby stworzyć odgrodzoną przestrzeń sferyczną, autor postanowił złączyć (ścisnąć) dwie odłączone słuchawki użytych nauszników. Do celów testowych nie będzie potrzebny dodatkowy mikrofon umieszczony w~środku przestrzeni, zamiast tego zostanie użyty zamontowany już mikrofon odsłuchowy. Dane z~niego zostaną nie tylko zapisane do pamięci mikrokontrolera, ale również wysłane do komputera walidującego rozwiązanie, gdzie na bieżąco monitorowane będzie działanie układu.
+Aby stworzyć odgrodzoną przestrzeń sferyczną, autor postanowił złączyć (ścisnąć) dwie słuchawki użytych nauszników. Do celów testowych nie będzie potrzebny dodatkowy mikrofon umieszczony w~środku przestrzeni, zamiast tego zostanie użyty zamontowany już mikrofon odsłuchowy. Dane z~niego zostaną nie tylko zapisane do pamięci mikrokontrolera, ale również wysłane do komputera walidującego rozwiązanie, gdzie na bieżąco monitorowane będzie działanie układu.
 
 Aby zasilić prototyp, autor podłączył mikrokontroler poprzez USB do komputera osobistego. Zapewniło to standardowe zasilanie mikrokontrolera na poziomie \SI{3.3}{\V}. Ponadto, celem odseparowania części analogowej od cyfrowej, autor zdecydował się zapewnić osobne zasilanie dla układów analogowych, a~więc mikrofonu wraz z~jego przedwzmacniaczem oraz dla wzmacniacza głośnikowego. Tym samym zredukowane są zakłócenia, które normalnie mogłyby się przenieść z~linii zasilania układu cyfrowego do bardzo wrażliwej na te zakłócenia części analogowej. Zasilanie to, dla mikrofonów, zostało osiągnięte poprzez dołączenie pastylkowych baterii \SI{3}{\V} typu CR2032 do elementów analogowych. Zasilanie przedwzmacniacza z~głośnikiem wymaga użycia nieco innej metody ze względu na dużą moc komponentu -- zwykła bateria nie wystarczyłaby do odpowiednio długotrwałego działania układu. Biorąc pod uwagę prototypowy charakter całego urządzenia oraz konieczność połączenia mikrokontrolera z~komputerem, autor zdecydował się zasilić przedwzmacniacz przy użyciu modułu zasilającego z~płytki prototypowej, podłączonego przez zasilacz impulsowy DC \SI{9}{\V} do gniazdka sieciowego. Przyłącze zasilacza nie posiada złącza uziemienia, dlatego po połączeniu wszystkich komponentów w~całym układzie występuje jeden wspólny punkt uziemiający -- jest nim GNDA, czyli masa analogowa mikrokontrolera. Pozwala to uniknąć pętli masy, które miałyby wpływ na jakość sygnału w~urzadzeniu. Warto zwrócić uwagę na fakt, że gdyby moduł zasilający został podłączony przez magistralę USB, to powstałaby pętla masy pomiędzy układem mierzonym a~komputerem pomiarowym, który zapewniałby energię dla urządzenia.

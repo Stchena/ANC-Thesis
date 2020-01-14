@@ -2,7 +2,7 @@
 \label{cha:wnioski}
 W~tym rozdziale autor podsumowuje wyniki pomiarów z~poprzedniego rozdziału, ocenia jakość rozwiązania względem istniejącego rozwiązania komercyjnego oraz proponuje możliwe usprawnienia swojego projektu.
 \section{Ocena jakości rozwiązania}
-Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland oraz kosztu nauszników ochronnych, zamyka się w~granicach~230~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
+Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland oraz kosztu nauszników ochronnych, zamyka się w~granicach~220~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
 \begin{table}[h!]
 	\centering
 	\caption{Wyliczenie kosztów poszczególnych elementów składowych projektu.}
@@ -13,20 +13,20 @@ Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów z
 		\hline\hline
 		NUCLEO-F446RE & Płytka prototypowa z~mikrokontrolerem. & 77,90 zł \\ 
 		\hline
-		Adafruit MAX4466 -- dwie sztuki & Mikrofon elektretowy ze wzmacniaczem audio. & 79,80 zł \\
+		Adafruit MAX4466 -- dwie sztuki & Mikrofon elektretowy z przedwzmacniaczem audio. & 79,80 zł \\
 		\hline
-		Adafruit PAM8302 & Przedwzmacniacz audio dedykowany do głośników. & 19,90 zł \\
+		Adafruit PAM8302 & Wzmacniacz audio dedykowany do głośników. & 19,90 zł \\
 		\hline
 		Głośnik MG15 & Głośnik \SI{0,1}{\W} o~impedancji \SI{8}{\Omega}. & 2,20 zł \\
 		\hline
-		Nauszniki ochronne & Typowe, tanie nauszniki ochronne ze sklepu BHP. & 22,50 zł \\
+		Nauszniki ochronne & Typowe, tanie nauszniki ochronne ze sklepu BHP. & 12,15 zł \\
 		\hline
 		Zestaw płytka stykowa + przewody + moduł zasilający & Podstawowy zestaw płytki stykowej 830 pól, przewody oraz moduł zasilający MB102. & 19,90 zł \\
 		\hline
 	\end{tabular}
 \end{table}
 
-Zatem, według tabeli \ref{tab:costs}, sumaryczny koszt takiego rozwiązania wynosi 222 ,20 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby zapewne istotnie niższa.
+Zatem, według tabeli \ref{tab:costs}, sumaryczny koszt takiego rozwiązania wynosi 211,85 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby zapewne istotnie niższa.
 
 W~porównaniu do słuchawek Jabra Elite 80, które można kupić w~cenie wahającej się między 1000~zł, a~1400~zł\footnote{Wyniki wyszukiwania serwisu ceneo.pl, stan z~dnia 04.01.2020.}, jest to dobra cena, jeśli weźmie się pod uwagę fakt, że dokupienie dodatkowych elementów i~zmodyfikowanie układu tak, by spełniał funkcję słuchawek, nie zwiększy jego ceny nawet dwukrotnie.
 
@@ -51,18 +51,17 @@ Biorąc pod uwagę decyzje konstrukcyjne, ograniczenia użytej platformy oraz wy
 	\end{itemize}
 	Ograniczenie liczby połączeń układu do jednego ułatwiłoby używanie urządzenia i~zwiększyłoby jego mobilność.
 	\item Dodanie algorytmu estymacji i~eliminacji składowej stałej z~sygnałów pochodzących z~przedwzmacniaczy mikrofonowych.\\
-	PLACEHOLDER
+	Dla zastosowanego układu mikrofonu z~przedwzmacniaczem składowa stała jest równa połowie napięcia zasilania. Oznacza to, że przy zasilaniu bateryjnym, wraz z~charakterystycznym dla baterii spadkiem napięcia w~miarę wyładowywania, spadać będzie również wartość tej składowej. Jeśli więc ustawi się ją na pewną stałą wartość, tak jak ma to miejsce w~obecnej wersji programu, to filtr będzie tracił dokładność z~powodu rozładowania baterii.
 	\item Rozszerzenie zakresu częstotliwości w~którym efektywnie działa aktywne tłumienie szumów.\\
-	Górną częstotliwość przedziału podniosłoby zwiększenie częstotliwości próbkowania, zaś dolną -- zwiększenie długości filtra.
-	\item Zastosowanie bardziej rozbudowanych bądź zmodyfikowanych wersji algorytmu LMS.\\
-	PLACEHOLDER
+	Górną częstotliwość przedziału podniosłoby zwiększenie częstotliwości próbkowania, zaś dolną -- zwiększenie długości filtra. Dla celów prototypowych ustawiono mały zakres dostępnego tłumienia, jednak w~następnych iteracjach urządzenia, po zoptymalizowaniu konfiguracji i~programu, można by zwiększyć szerokość tego pasma.
+	\item Zastosowanie bardziej rozbudowanych bądź zmodyfikowanych wersji algorytmu LMS.
 	\item Wykorzystanie trybu obniżonego poboru energii przez mikrokontroler.\\
-	Interesuje nas taki tryb, w~którym rdzeń usypia, ale pracują peryferia i~w~którym rdzeń można wybudzić przerwaniem.
+	Tryb, w~którym rdzeń usypia, ale pracują peryferia i~w~którym można go wybudzić przerwaniem, podniósłby efektywność urządzenia i~zmniejszyłby koszty jego eksploatacji.
 	\item Optymalizacja kosztów urządzenia.
 	\item Obniżenie częstotliwości taktowania poszczególnych podzespołów mikrokontrolera w~celu obniżenia pobory mocy.
 	\item Dodanie łączności bezprzewodowej.\\
 	Można  na przykład użyć modułu Bluetooth -- urządzenie spełniałoby wtedy funkcję słuchawek bezprzewodowych.
-	\item Dodanie układu zarządzania akumulatorem.
+	\item Dodanie układu zarządzania akumulatorem.\\
 	Układy BMS (Battery Management System) pomagają w~bardziej ekonomiczny sposób zużywać energię, co przekładałoby się na tańszą eksploatację urządzenia i~jego wydłużone działanie na jednym ładowaniu.
 \end{enumerate}
 
