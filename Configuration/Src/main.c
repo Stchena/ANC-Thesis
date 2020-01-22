@@ -34,12 +34,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BETA 0.001f			// LMS Convergence Rate
+#define BETA 2E-4f			// LMS Convergence Rate
 #define L 50				// Filter Order
-#define Fs 2000				// Sampling Frequency [Hz]
-#define DESIRED 0			// Desired signal
-#define V_REF 3.0f			// V_REF applied to ADC and DAC
+#define Fs 10000			// Sampling Frequency [Hz]
+#define V_REF 3.0f
 #define RESOLUTION 4096		// ADC and DAC resolution 12bit
+#define DAC_LOW_TH 	850
+#define DAC_HIGH_TH 3250
 
 #define TEST_DURATION 15	// test duration in seconds (remember to give +3sec for operator to stop test -- prevent buffer overwrite)
 /* USER CODE END PD */
@@ -53,7 +54,6 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 DMA_HandleTypeDef hdma_adc1;
-DMA_HandleTypeDef hdma_adc2;
 
 DAC_HandleTypeDef hdac;
 
@@ -63,13 +63,65 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-volatile uint8_t enable = 1;	// should ANC be enabled? default: 1
-float samples[L] = {0.0f};		// buffer of L input samples, where 0 is newest, L-1 is oldest
-float weights[L] = {0.0f}; 		// Filter coefficients (weights), where 0 is newest, L-1 is oldest
-volatile uint32_t micInsideOutside = 0; 	// upper half word is hadc2, lower half word is hadc1 -- this is ADC in DMA Mode 2 behaviour
-uint16_t output = 0;			// output of FIR filter to DAC
-volatile uint16_t buffer_count = 0;		// uart_tx_buffer count
-uint16_t uart_tx_buffer[Fs*(TEST_DURATION+3)] = {1};	// buffer to send data on button click
+const float V_REF_HALF = V_REF/2.0f; // added as variable to speed up calculations
+
+volatile uint8_t enable = 1;					// should ANC be enabled? default: 1
+float samples[L];								// buffer of L input samples, where 0 is newest, L-1 is oldest
+float weights[L];			/*{0.000443f,
+								0.000192f,
+								0.001085f,
+								0.000754f,
+								0.001792f,
+								0.002080f,
+								0.002258f,
+								0.004629f,
+								0.002066f,
+								0.008853f,
+								0.000786f,
+								0.015053f,
+								-0.001892f,
+								0.023238f,
+								-0.006028f,
+								0.033016f,
+								-0.011349f,
+								0.043577f,
+								-0.017242f,
+								0.053775f,
+								-0.022853f,
+								0.062314f,
+								-0.027260f,
+								0.068003f,
+								-0.029686f,
+								0.070000f,
+								-0.029686f,
+								0.068003f,
+								-0.027260f,
+								0.062314f,
+								-0.022853f,
+								0.053775f,
+								-0.017242f,
+								0.043577f,
+								-0.011349f,
+								0.033016f,
+								-0.006028f,
+								0.023238f,
+								-0.001892f,
+								0.015053f,
+								0.000786f,
+								0.008853f,
+								0.002066f,
+								0.004629f,
+								0.002258f,
+								0.002080f,
+								0.001792f,
+								0.000754f,
+								0.001085f,
+								0.000192f,
+								0.000443f};*/ 						// Filter coefficients (weights), where 0 is newest, L-1 is oldest
+volatile uint32_t micInsideOutside = 0; 		// upper half word is hadc2, lower half word is hadc1 -- this is ADC in DMA Mode 2 behaviour
+uint16_t output = 0;							// output of FIR filter to DAC
+//static uint16_t buffer_count = 0;				// uart_tx_buffer count
+//uint16_t uart_tx_buffer[Fs*(TEST_DURATION+3)];// buffer to send data on button click
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,8 +134,7 @@ static void MX_DAC_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-void FirLms_Filtering_Prototype();
-void LMS_Weights_Init(float* weights);
+void LMS_Weights_Init();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -130,18 +181,16 @@ int main(void)
   //LMS_Weights_Init(weights);
 
   HAL_ADC_Start(&hadc2);
-  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 4);
+  HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
   HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
   HAL_TIM_Base_Start(&htim3); // start timer 1
   HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1); // wait for input from testing PC
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -214,7 +263,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
@@ -242,7 +291,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -273,7 +322,7 @@ static void MX_ADC2_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
   */
   hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.ScanConvMode = DISABLE;
   hadc2.Init.ContinuousConvMode = DISABLE;
@@ -359,9 +408,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 8400-1;
+  htim3.Init.Prescaler = 420-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 5-1;
+  htim3.Init.Period = 20-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -447,9 +496,6 @@ static void MX_DMA_Init(void)
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-  /* DMA2_Stream2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
 }
 
@@ -491,11 +537,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void LMS_Weights_Init(float* weights)
+void LMS_Weights_Init()
 {
 	int i;
 	for(i=L-1; i>=0; i--) weights[i]=0.01f;
 }
+
 /*
  *@brief UART Receive Callback -- Used for enable/disable algorithm from PC
  */
@@ -505,7 +552,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 	case 0:
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-		HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION);
+		//HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION);
 		break;
 	case 1:
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
@@ -515,48 +562,52 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 	HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1); // enable await-receive again
 }
+
+void UartTransmitDMA(void)
+{
+	//HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION); // BUFFER DATA IN MEMORY FOR 15 SEC THEN SEND ALL AT ONCE AFTER EXPERIMENT
+}
+
 /*
  *@brief FIR with LMS Algorithm filtering
  */
-void FirLms_Filtering_Prototype()
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	if(!enable) return;
-	if(buffer_count >= Fs*(TEST_DURATION+3)) buffer_count=0; // reset buffer_count after to create circular buffer -- this may cause problems
+	//if(buffer_count >= Fs*(TEST_DURATION+3)) buffer_count=0; // reset buffer_count after to create circular buffer -- this may cause problems
 	short I;
-	float error = 0.0;
-	float Yn = 0.0;
+	float fir_error = 0.0f;
+	float Yn = 0.0f;
 	// shift the buffer
-	memmove(samples+1, samples, sizeof(samples)); // consider changing sizeof(samples) to sizeof(samples)-x where x is element
+	for(I=L-2; I>=0; --I)
+		samples[I+1] = samples[I];
 	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
 	uint16_t feedback_sample = (uint16_t)((micInsideOutside & 0xFFFF0000) >> 16); // save new value from feedback mic
 
-	uart_tx_buffer[buffer_count] = feedback_sample; // save to buffer first, THEN increment counter
-	buffer_count++;
-	samples[0] = feedforward_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
-	error = feedback_sample*V_REF/RESOLUTION - V_REF/2; // convert to float according to resolution
+	//uart_tx_buffer[buffer_count] = feedback_sample; // save to buffer first, THEN increment counter
+	//buffer_count++;
+	samples[0] = feedforward_sample*V_REF/RESOLUTION - V_REF_HALF; // convert to float according to resolution
+	fir_error = feedback_sample*V_REF/RESOLUTION - V_REF_HALF; // convert to float according to resolution
 	// calculate filter output
+	float weight_sum = 0.0f;
 	for(I=L-1; I>=0; --I)
 	{
-		weights[I] = weights[I] + BETA*error*samples[I]; // this is normal equation, consider change into sign-error
-		Yn += (weights[I] * samples[I]);
+		weights[I] = weights[I] + BETA*fir_error*samples[I]; // this is normal equation, consider change into sign-error
+		weight_sum += weights[I];
+		Yn -= (weights[I] * samples[I]);
 	}
-	Yn > (V_REF/2) ? Yn=V_REF/2 :
-			Yn < (-V_REF/2) ? Yn=-V_REF/2 : Yn;
-	output = (uint16_t)((Yn+V_REF/2)*(RESOLUTION-1)/V_REF);
-	if(output>4095) output = 4095; // sanitize output
+	for(I=L-1; I>=0; --I)
+	{
+		weights[I] -= 0.04f*weight_sum/((float)L); // DC drift reduction - calculate sum of weights, and if !=0 then drift the DC constant slowly towards 0 using part of this sum.
+	}
+	Yn > (V_REF_HALF) ? Yn=V_REF_HALF :
+			(Yn < (-V_REF_HALF) ? Yn=-V_REF_HALF : Yn);
+	output = (uint16_t)((Yn+V_REF_HALF)*(RESOLUTION-1.0f)/V_REF);
+	if(output<DAC_LOW_TH) output = DAC_LOW_TH;
+	if(output>DAC_HIGH_TH) output = DAC_HIGH_TH; // sanitize output
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
-}
-void UartTransmitDMA(void)
-{
-	HAL_UART_Transmit_DMA(&huart2, (uint8_t*)uart_tx_buffer, 2*Fs*TEST_DURATION); // BUFFER DATA IN MEMORY FOR 15 SEC THEN SEND ALL AT ONCE AFTER EXPERIMENT
-}
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	if(enable){
-		FirLms_Filtering_Prototype();
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle PA5 which has LED connected
-	}
-	//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 }
 /* USER CODE END 4 */
 
