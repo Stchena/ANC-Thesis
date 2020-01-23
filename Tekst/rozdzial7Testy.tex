@@ -1,13 +1,12 @@
 \chapter{Walidacja rozwiązania}
 \label{cha:tests}
-Po wstępnym nastrojeniu układu, należy uruchomić oraz przetestować urządzenie. Autor zapoznał się w~tym celu z~normą dotyczącą mierzenia poziomu natężenia hałasu \cite{test_norm}, jednak ze względów subiektywnych zastosował się jedynie do zaleceń traktujących o~metodzie pomiarowej, nie zaś do dokładnego sposobu wykonania pomiaru. Zarówno sposób, jak i~wyniki pomiarów, opisane są w~sekcji \ref{sec:practical_test}.
+Po wstępnym nastrojeniu układu, należy uruchomić oraz przetestować urządzenie. Autor zapoznał się w~tym celu z~normą dotyczącą mierzenia poziomu natężenia hałasu \cite{test_norm}, jednak ze względów subiektywnych nie zastosował się do niej, a~obrał własną metodę wykonania testu. Ze względu na niskie amplitudy sygnałów występujących w~urządzeniu i~podczas testu, autor zdecydował się przetestować urządzenie akwirując sygnały przy użyciu oscyloskopu. Zarówno sposób, jak i~wyniki pomiarów, opisane są w~sekcji \ref{sec:practical_test}.
 \section{Test praktyczny}
 \label{sec:practical_test}
-Celem sprawdzenia jakości zbudowanego urządzenia, autor dokonał testu praktycznego, w~którym zmierzył poziom natężenia dźwięku w~pewnym pomieszczeniu ze stałym, powtarzalnym typem hałasu, w~trzech wariantach -- bez tłumienia, tylko z~tłumieniem pasywnym, oraz z~tłumieniem pasywnym i~uruchomionym tłumieniem aktywnym pochodzącym z~zaprogramowanego układu.
+Celem sprawdzenia jakości zbudowanego urządzenia, dokonano testu praktycznego, gdzie w~pomieszczeniu laboratoryjnym zmierzono poziom natężenia hałasu słyszanego przez mikrofony urządzenia. Do generowania dźwięków testowych użyto głośnika podłączonego do generatora funkcyjnego. Pomiaru dokonano w~trzech wariantach -- bez tłumienia, tylko z~tłumieniem pasywnym, oraz z~tłumieniem pasywnym i~uruchomionym tłumieniem aktywnym pochodzącym z~zaprogramowanego układu. W~przypadku drugiego testu udaje się wyznaczyć charakterystykę częstotliwościową pasywnej osłony dźwiękoszczelnej użytych w~projekcie nauszników. Z~kolei w~ostatnim teście, po pewnym czasie działania algorytmu, zostają odczytane wagi filtra LMS, co pozwala na wyznaczenie jego odpowiedzi impulsowej.
 \subsection{Warunki testu}
 \label{subsec:circumstances}
-Układ został przetestowany w~pomieszczeniu monitoringowym przeznaczonym dla ochrony biurowca. Pomieszczenie jest niewielkie i~znajduje się w~nim wiele urządzeń elektrycznych -- komputery, monitory, wiatraki, zasilacze oraz szafka z~urządzeniami sieciowymi, których układy chłodzące generują dość uciążliwy przy długotrwałej ekspozycji hałas. Pokój, który wykorzystano do testów, znajduje się na uboczu budynku, z~dala od pomieszczeń biurowych, gdzie znajdują się pracownicy. Pozwala to zatem na przetestowanie działania układu przy powtarzalnym hałasie o~niskiej częstotliwości. Pewne dźwięki oczywiście mimo wszystko przedostaną się do pokoju, nie będą jednak głównym elementem składowym danego typu hałasu mierzonego w~tym pomieszczeniu. Urządzenie umieszczono w~środku pomieszczenia i~skierowano je mikrofonem w~stronę szafki z~urządzeniami sieciowymi, które w~tym teście są głównym źródłem hałasu. Odległość od źródła dźwięku wynosiła PLACEHOLDER, %TODO ILE METRÓW???? 
-zaś czas pomiaru wynosił 15~sekund dla każdego z~etapów.
+Układ został przetestowany w~pomieszczeniu przeznaczonym dla prowadzenia zajęć laboratoryjnych. W~trakcie przeprowadzania testu nie występowały inne, znaczące źródła hałasu, które mogłyby w~niekontrolowany sposób zakłócać pracę układu i~pomiar. Głośnik użyty do odgrywania dźwięków podłączono do generatora funkcyjnego i~umieszczono go w~bliskiej odległości od mikrofonu głównego zbudowanego urządzenia. Odległość od źródła dźwięku wynosiła \SI{45}{\mm}, zaś czas pomiaru wynosił 15~sekund dla każdego z~etapów.
 \subsection{Typowe rodzaje hałasu}
 Jak już wspomniano w~sekcji \ref{sec:hałas} rozdziału \ref{cha:teoria}, typowymi rodzajami hałasu, które można chcieć tłumić takim urządzeniem, są:
 \begin{itemize}
@@ -15,9 +14,9 @@ Jak już wspomniano w~sekcji \ref{sec:hałas} rozdziału \ref{cha:teoria}, typow
 	\item szum wentylacyjny,
 	\item dźwięk towarzyszący pracy silnika.
 \end{itemize}
-Są to zatem sygnały charakteryzujące się (w~przybliżeniu) stałym przedziałem częstotliwościowym i~niewielkim natężeniem, jednak będące uciążliwymi w~dłuższej perspektywie czasowej. W~ramach testu praktycznego sprawdzono działanie układu przy ekspozycji na hałas pochodzący od rozmowy kilku osób w~biurze oraz na szum wentylatorów i~pobliskich urządzeń elektrycznych.
+Są to zatem sygnały charakteryzujące się (w~przybliżeniu) stałym przedziałem częstotliwościowym i~niewielkim natężeniem, jednak będące uciążliwymi w~dłuższej perspektywie czasowej. W~ramach testu praktycznego sprawdzono działanie układu przy ekspozycji na hałas pochodzący od sygnałów sinusoidalnych, złożeń kilku takich sygnałów (np. sygnał sinusoidalny o~częstotliwości \SI{200}{\Hz} + \SI{700}{\Hz}), białego szumu oraz sygnału z~wobulatora będącego ,,przemieceniem" wszystkich częstotliwości w~zakresie pracy filtra.
 \subsection{Poziom hałasu bez tłumienia}
-Pomiaru bez tłumienia dokonano przy otwartej muszli słuchawek i~wyłączonym algorytmie. Zbierano dane z~mikrofonu odsłuchowego (feedback). Pozwoliło to na zebranie danych o~poziomie natężenia hałasu w~miejscu, w~którym znajdowało się urządzenie. Przy założeniu opisanych w~sekcji \ref{subsec:circumstances} warunków testu, średni poziom hałasu zmierzony bez żadnego sposobu tłumienia wyniósł PLACEHOLDER. %TODO uzupełnić pomiar.
+Pomiaru bez tłumienia dokonano poprzez akwizycję sygnału z~mikrofonu głównego (feedforward). Pozwoliło to na zebranie danych o~poziomie natężenia hałasu przed jego przejściem przez osłonę dźwiękoszczelną. Przy założeniu opisanych w~sekcji \ref{subsec:circumstances} warunków testu, średni poziom hałasu zmierzony bez żadnego sposobu tłumienia wyniósł PLACEHOLDER. %TODO uzupełnić pomiar.
 Widmo częstotliwościowe pokazano na rysunku \ref{fig:widmo_bez}.
 \begin{figure}[h!]
 	\centering
@@ -27,7 +26,7 @@ Widmo częstotliwościowe pokazano na rysunku \ref{fig:widmo_bez}.
 \end{figure}
 
 \subsection{Poziom hałasu z pasywnym tłumieniem}
-Następnie, aby dokonać pomiaru natężenia hałasu przy pasywnym tłumieniu, zamknięto i~zebrano dane pochodzące z~drugiego mikrofonu (feedback). Dzięki temu otrzymano informację o~tym, jaki poziom hałasu panuje wewnątrz słuchawki, czyli jaki hałas słyszałby użytkownik przy użyciu jedynie pasywnego tłumienia, które dają użyte nauszniki. Przy tych samych założeniach, średni poziom hałasu wyniósł PLACEHOLDER2. %TODO uzupełnić pomiar.
+Następnie, aby dokonać pomiaru natężenia hałasu przy pasywnym tłumieniu, zamknięto i~zebrano dane pochodzące z~drugiego mikrofonu (feedback). Dzięki temu otrzymano informację o~tym, jaki poziom hałasu panuje wewnątrz słuchawki, czyli jaki hałas słyszałby użytkownik przy użyciu jedynie pasywnego tłumienia, które dają użyte nauszniki. Należy pamiętać, że zmieni się w~ten sposób również odległość od źródła hałasu do mikrofonu pomiarowego. Różnicę tę można jednak zawrzeć w~efektach działania tłumienia pasywnego -- odległość od źródła dźwięku również jest jedną ze składowych podejścia pasywnego. Przy tych samych założeniach, średni poziom hałasu wyniósł PLACEHOLDER2. %TODO uzupełnić pomiar.
 Widmo częstotliwościowe zaprezentowano na rysunku \ref{fig:widmo_pasywnie}. 
 \begin{figure}[h!]
 	\centering
@@ -36,6 +35,13 @@ Widmo częstotliwościowe zaprezentowano na rysunku \ref{fig:widmo_pasywnie}.
 	\label{fig:widmo_pasywnie}
 \end{figure}
 
+Dodatkowo, porównując wynik pomiaru bez tłumienia hałasu z~wynikiem otrzymanym w~tej sekcji, można wyznaczyć charakterystykę częstotliwościową osłony dźwiękoszczelnej. Aby informacja była miarodajna, należy posłużyć się do tego celu wobulatorem, który zapewnia sygnał dźwiękowy o~narastającej częstotliwości i~stałej amplitudzie. Taki rodzaj sygnału ujawnia szerokość pasma, które efektywnie tłumione jest przez samą osłonę o~wysokim współczynniku tłumienia. Wynik pomiaru, umieszczony na rysunku \ref{fig:sweep} pozwala lepiej zapoznać się z~parametrami akustycznymi użytych słuchawek i~w~dalszych iteracjach projektu usprawnić strojenie algorytmu tak, aby pasował do tego typu słuchawek.
+\begin{figure}[h!]
+	\centering
+	\includegraphics{../Assets/widmo_sweep.png}	
+	\caption{Widmo częstotliwościowe hałasu przy pomiarze badającym możliwości osłony pasywnej.}
+	\label{fig:sweep}
+\end{figure}
 \subsection{Poziom hałasu z aktywnym tłumieniem}
 Ostatecznie, aby dowieść skuteczności rozwiązania, uruchomiono algorytm i~ponownie zebrano dane z~mikrofonu odsłuchowego. Średni poziom hałasu zmierzony w~ten sposób wyniósł PLACEHOLDER3. %TODO uzupełnić pomiar.
 Widmo częstotliwościowe zamieszczono na rysunku \ref{fig:widmo_aktywnie}.
@@ -46,11 +52,5 @@ Widmo częstotliwościowe zamieszczono na rysunku \ref{fig:widmo_aktywnie}.
 	\label{fig:widmo_aktywnie}
 \end{figure}
 
-Dodatkowo, aby porównać zbudowany układ do istniejącego rozwiązania rynkowego, ten sam pomiar wykonano dla słuchawek Jabra Elite~80. Tak jak urządzenie autora, używają one podejścia feedforward-feedback.\cite{JabraEvolve80} Sposób realizacji rozwiązania (analogowy czy cyfrowy) nie jest nigdzie wyjawiony, można jednak domniemywać użycie analogowego toru tłumienia ze względu na dużo niższe zużycie energii elektrycznej oraz wymiary takiego układu. Słuchawki podłączono do komputera osobistego i~umieszczono w~tym samym miejscu, w~którym wcześniej mierzono urządzenie autora. Sygnał z~wnętrza słuchawek zbierano poprzez włożenie do muszli słuchawek komercyjnych mikrofonu odsłuchowego z~urządzenia autora (wciąż podpiętego do mikrokontrolera) i~przesłanie danych z~niego (za pośrednictwem modułu komunikacji UART) do komputera monitorującego test. Średni poziom hałasu wewnątrz słuchawek firmowych zmierzony w~ten sposób wyniósł PLACEHOLDER4. Widmo częstotliwościowe tak zmierzonego dźwięku pokazano na rysunku \ref{fig:widmo_jabra}.
-\begin{figure}[h!]
-	\centering
-	\includegraphics{../Assets/widmo_jabra.png}	
-	\caption{Widmo częstotliwościowe hałasu przy pomiarze z~aktywnym tłumieniem słuchawek komercyjnych Jabra Elite~80.}
-	\label{fig:widmo_jabra}
-\end{figure}
+Na końcu tak wykonanego pomiaru odczytano wartości wag filtra LMS. Te nastawy zostały osiągnięte przez filtr w~całości samodzielnie, gdyż nie ustawiano żadnych wartości początkowych -- filtr był zerowany przy każdorazowym uruchomieniu. Taki pomiar pozwala na wyznaczenie odpowiedzi impulsowej zastosowanego filtra. Wizualizacja tych danych w~pakiecie obliczeniowym MATLAB pozwala na lepsze zrozumienie zachowania oraz możliwości adaptacyjnych filtra.
 %TODO mikrofon z peceta do przestrzeni, zmierzyc widmo dzwieku do matlaba
