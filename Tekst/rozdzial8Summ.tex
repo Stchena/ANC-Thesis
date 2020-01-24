@@ -1,6 +1,6 @@
 \chapter{Podsumowanie i wnioski}
 \label{cha:wnioski}
-W~tym rozdziale autor podsumowuje wyniki pomiarów z~poprzedniego rozdziału, ocenia jakość rozwiązania względem istniejących rozwiązań komercyjnych oraz proponuje możliwe usprawnienia swojego projektu.
+W~tym rozdziale autor podsumowuje wyniki pomiarów z~poprzedniego rozdziału, ocenia jakość rozwiązania względem istniejących rozwiązań komercyjnych oraz proponuje możliwe usprawnienia.
 \section{Ocena jakości rozwiązania}
 Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów zamówionych w~sklepie internetowym Botland oraz kosztu nauszników ochronnych, zamyka się w~granicach~220~zł. Poszczególne elementy składające się na tę kwotę znajdują się w~tabeli \ref{tab:costs}.
 \begin{table}[h!]
@@ -28,16 +28,27 @@ Koszt zbudowanego urządzenia, po podliczeniu kosztów wszystkich komponentów z
 
 Zatem, według tabeli \ref{tab:costs}, sumaryczny koszt takiego rozwiązania wynosi 211,85 zł. Należy pamiętać, że jest to kwota brutto za zamówienie małej liczby elementów -- przy zamówieniu hurtowym części do masowej produkcji urządzenia, cena byłaby zapewne istotnie niższa.
 
-W~porównaniu do słuchawek Jabra Elite 80, które można kupić w~cenie wahającej się między 1000~zł, a~1400~zł\footnote{Wyniki wyszukiwania serwisu ceneo.pl, stan z~dnia 04.01.2020.}, jest to dobra cena, jeśli weźmie się pod uwagę fakt, że dokupienie dodatkowych elementów i~zmodyfikowanie układu tak, by spełniał funkcję słuchawek, nie zwiększy jego ceny nawet dwukrotnie.
+W~porównaniu na przykład do słuchawek Jabra Elite 80, które można kupić w~cenie wahającej się między 1000~zł, a~1400~zł\footnote{Wyniki wyszukiwania serwisu ceneo.pl, stan z~dnia 04.01.2020.}, jest to umiarkowana cena. Dokupienie dodatkowych elementów i~zmodyfikowanie układu tak, by spełniał funkcję słuchawek, nie powinno znacznie zwiększyć jego kosztu.
 
-Ponieważ jednak nie udaje się efektywnie wytłumić większej ilości złożonych rodzajów hałasu w~zmiennych warunkach, prototypowe urządzenie opracowane w~tym projekcie nie może w~pełni równać się z~gotowym, dopracowanym rozwiązaniem stosowanym w~komercyjnym produkcie. 
+Urządzenie jest w~stanie efektywnie wytłumić niezbyt złożone sygnały o~częstotliwościach w~zakresie od około \SI{400}{\Hz} do około \SI{820}{\Hz}. Jest w~stanie również nauczyć się tłumienia sygnałów sinusoidalnych złożonych co najmniej z~dwóch różnych fal, jednak im bardziej złożony sygnał, tym więcej czasu filtr potrzebuje na przestrojenie się do zauważalnego poziomu tłumienia. Aby w~znacznym stopniu poprawić jakość proponowanego rozwiązania, należałoby zwiększyć zakres częstotliwości pracy urządzenia, przyspieszyć jego adaptację oraz dopracować zachowanie filtra w~sytuacji pobudzania go złożonymi sygnałami -- na przykład białym szumem.
+
+Problemy z~dobranymi elementami konstrukcyjnymi wyszły na jaw dopiero w~ostatniej fazie prototypowania -- podczas testów. Pierwszym elementem, który należałoby wymienić na lepszy, jest głośnik. Jego tendencja do przesterowań i~nieliniowości bezpośrednio ogranicza zakres natężenia dźwięku oraz szerokość pasma częstotliwości, szczególnie w~dolnym zakresie, gdzie najbardziej potrzeba dobrze działającego tłumienia aktywnego.
+
+Prototyp w~obecnym stanie w~oczywisty sposób nie może konkurować z~istniejącymi na rynku słuchawkami z~ANC, które w~cyklu swojej produkcji pomyślnie przeszły kilka etapów projektowania i~testowania. Wynika to z~wielu czynników, takich jak:
+\begin{itemize}
+	\item Wąski zakres i~typ tłumionych hałasów.
+	\item Prototyp zmontowany jest przy użyciu prostych i~łatwo dostępnych komponentów, podczas gdy producenci takich urządzeń zazwyczaj projektują całość urządzenia od podstaw.
+	\item Komercyjne rozwiązania poza funkcją tłumienia hałasu spełniają głównie funkcję odtwarzania muzyki -- co pozytywnie wpływa na charakterystykę pracy układu, gdyż często sam sygnał pożądany jest w~stanie (swoim kosztem) lekko zamaskować niektóre hałasy. Jeśli dołożyć układ aktywny, otrzymuje się jednocześnie tłumienie niepożądanego i~poprawienie pożądanego sygnału.
+\end{itemize}
+
+Ostatecznie, urządzenie działa zgodnie z~założeniami oraz spełnia wymagania projektu wymienione w~sekcji \ref{sec:celePracy}. Różnica osiągana przez uruchomienie algorytmu nie jest spektakularna, jednak należy pamiętać, że jest to pierwsza iteracja prototypu -- czyli wersja, która może być wciąż jeszcze obarczona błędami. Ważną częścią analizy takiej pierwszej iteracji jest opracowanie wniosków i~zaplanowanie poprawek. Takie właśnie propozycje poprawek znajdują się w~następnej sekcji.
 \section{Propozycja możliwych usprawnień}
 Biorąc pod uwagę decyzje konstrukcyjne, ograniczenia użytej platformy oraz wyniki testów, autor proponuje następujące usprawnienia swojego projektu:
 \begin{enumerate}
 	\item Użycie dedykowanej płytki z~mikrokontrolerem, zamiast płytki prototypowej, która zawiera niepotrzebne w~tym układzie elementy.\\
 	Pozwoliłoby to na obniżenie kosztów jednostki centralnej i~zmniejszenie wymiarów urządzenia -- przy użyciu dedykowanej płytki, można by od razu poprowadzić na niej połączenia, które w~obecnym stanie realizowane są poprzez płytkę stykową.
 	\item Dokładniejsze zamocowanie elementów w~słuchawce.\\
-	Obecnie, mikrofon główny, odsłuchowy i~głośnik połączone są dość luźno z~nausznikami. Urządzenie działałoby na pewno sprawniej, gdyby przytwierdzono te elementy na stałe i~dostosowano ich rozmiar oraz otoczenie do współpracy, gdyż obecnie są to niezwiązane ze sobą części, połączone do celów prototypowych.
+	Obecnie, mikrofon główny, odsłuchowy i~głośnik połączone są dość luźno z~nausznikami. Urządzenie działałoby na pewno sprawniej, gdyby przytwierdzono te elementy na stałe i~dostosowano ich rozmiar oraz otoczenie do współpracy, gdyż obecnie są to luźno związane ze sobą części, połączone do celów prototypowych.
 	\item Rozszerzenie funkcjonalności urządzenia o~drugi kanał.\\
 	Dodanie kanału stereo, drugiego głośnika i~drugiego mikrofonu odsłuchowego pozwoliłoby na pełnoprawne korzystanie z~nauszników -- w~tym momencie jest to jedynie odgrodzona sferyczna przestrzeń, którą tworzą dwie złączone słuchawki.
 	\item Dodanie możliwości słuchania pożądanego sygnału w~urządzeniu.\\
@@ -51,25 +62,22 @@ Biorąc pod uwagę decyzje konstrukcyjne, ograniczenia użytej platformy oraz wy
 	\end{itemize}
 	Ograniczenie liczby połączeń układu do jednego ułatwiłoby używanie urządzenia i~zwiększyłoby jego mobilność.
 	\item Dodanie algorytmu estymacji i~eliminacji składowej stałej z~sygnałów pochodzących z~przedwzmacniaczy mikrofonowych.\\
-	Dla zastosowanego układu mikrofonu z~przedwzmacniaczem składowa stała jest równa połowie napięcia zasilania. Oznacza to, że przy zasilaniu bateryjnym, wraz z~charakterystycznym dla baterii spadkiem napięcia w~miarę wyładowywania, spadać będzie również wartość tej składowej. Jeśli więc ustawi się ją na pewną stałą wartość, tak jak ma to miejsce w~obecnej wersji programu, to filtr będzie tracił dokładność z~powodu rozładowania baterii.
+	Dla zastosowanego układu mikrofonu z~przedwzmacniaczem, składowa stała jest równa połowie napięcia zasilania. Oznacza to, że przy zasilaniu bateryjnym, wraz z~charakterystycznym dla baterii spadkiem napięcia w~miarę wyładowywania, spadać będzie również wartość tej składowej. Jeśli więc ustawi się ją na pewną stałą wartość, tak jak ma to miejsce w~obecnej wersji programu, to filtr będzie tracił dokładność z~powodu rozładowania baterii.
 	\item Rozszerzenie zakresu częstotliwości w~którym efektywnie działa aktywne tłumienie szumów.\\
-	Górną częstotliwość przedziału podniosłoby zwiększenie częstotliwości próbkowania, zaś dolną -- zwiększenie długości filtra. Dla celów prototypowych ustawiono mały zakres dostępnego tłumienia, jednak w~następnych iteracjach urządzenia, po zoptymalizowaniu konfiguracji i~programu, można by zwiększyć szerokość tego pasma.
+	Górną częstotliwość przedziału podniosłoby zwiększenie częstotliwości próbkowania, zaś dolną -- zwiększenie długości filtra. Ogólną poprawę dałoby zastosowanie lepszej jakości głośnika. Dla celów prototypowych ustawiono mały zakres dostępnego tłumienia, jednak w~następnych iteracjach urządzenia, po zoptymalizowaniu konfiguracji i~programu, można by zwiększyć jego szerokość.
 	\item Zastosowanie bardziej rozbudowanych bądź zmodyfikowanych wersji algorytmu LMS.
 	\item Wykorzystanie trybu obniżonego poboru energii przez mikrokontroler.\\
 	Tryb, w~którym rdzeń usypia, ale pracują peryferia i~w~którym można go wybudzić przerwaniem, podniósłby efektywność urządzenia i~zmniejszyłby koszty jego eksploatacji.
 	\item Optymalizacja kosztów urządzenia.
-	\item Obniżenie częstotliwości taktowania poszczególnych podzespołów mikrokontrolera w~celu obniżenia pobory mocy.
+	\item Tam, gdzie to możliwe, obniżenie częstotliwości taktowania poszczególnych podzespołów mikrokontrolera w~celu obniżenia pobory mocy.
 	\item Dodanie łączności bezprzewodowej.\\
 	Można  na przykład użyć modułu Bluetooth -- urządzenie spełniałoby wtedy funkcję słuchawek bezprzewodowych.
 	\item Dodanie układu zarządzania akumulatorem.\\
-	Układy BMS (Battery Management System) pomagają w~bardziej ekonomiczny sposób zużywać energię, co przekładałoby się na tańszą eksploatację urządzenia i~jego wydłużone działanie na jednym ładowaniu.
+	Układy BMS (Battery Management System) pomagają w~monitorowaniu stanu baterii i~sterowaniu jej ładowaniem. Przekładałoby się to na tańszą eksploatację urządzenia i~jego wydłużone działanie na jednym ładowaniu.
 \end{enumerate}
-
-Powyższe propozycje są jedynie przykładowymi sposobami ulepszenia działania lub dodania nowych funkcjonalności urządzenia.
 \section{Wnioski ogólne}
-Prototypowanie urządzeń przy użyciu mikrokontrolerów STM32 jest prostsze w~stosunku do projektowania układów analogowych lub cyfrowych nieużywających tego typu mikrokontrolera. Zapewnia to mnogość dokumentacji i~narzędzi dostarczanych na bieżąco przez producentów oprogramowania.
+Prototypowanie urządzeń przy użyciu mikrokontrolerów STM32 jest prostsze w~stosunku do projektowania układów analogowych lub cyfrowych nieużywających tego typu mikrokontrolera. Zapewnione jest to przez mnogość dokumentacji i~narzędzi dostarczanych przez producentów oprogramowania.
 
-Bardzo często wykorzystuje się mikrokontrolery do zaprojektowania i~przetestowania układu, który później zostaje wykonany w~wersji analogowej dla zaoszczędzenia energii i~zmniejszenia wymiarów ostatecznej postaci urządzenia.
+Bardzo często wykorzystuje się mikrokontrolery do zaprojektowania i~przetestowania układu, który później zostaje wykonany w~wersji analogowej dla zaoszczędzenia energii i~zmniejszenia wymiarów.
 
-
-i tak dalej i tak dalej i żyli długo i szczęśliwie za siedmioma sinusami
+Układ spełnia założenia i~wymagania opisane w~sekcji \ref{sec:celePracy}. Końcowa wersja wciąż jednak wymaga wiele pracy. Kolejne iteracje i~wprowadzenie w~życie wymienionych wcześniej potencjalnych poprawek niewątpliwie zbliżyłoby prototyp do rozwiązań rynkowych, niemniej jednak nadal występuje problem poprawnego i~kompletnego zmierzenia parametrów takiego urządzenia -- bez specjalistycznego sprzętu niełatwo jest dokładnie zbadać projekt. Co za tym idzie, dla firmy opłacalne jest kompleksowe projektowanie i~testowanie urządzenia, które zostanie wprowadzone na rynek w~dużej ilości, co zrekompensuje poniesione koszty. W~przypadku projektu pojedynczego twórcy, koszty kolejnych iteracji, testów oraz roboczogodzin spędzonych przy projekcie szybko się sumują, zaś efektem jest mała liczba sztuk ostatecznej wersji produktu -- czasami jest to nawet jedna, pojedyncza sztuka. 

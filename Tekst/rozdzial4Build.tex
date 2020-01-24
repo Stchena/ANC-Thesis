@@ -32,7 +32,7 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 			\caption{Użyty w~projekcie wzmacniacz audio.\\ Źródło: https://cdn-shop.adafruit.com/970x728/2130-01.jpg}
 			\label{fig:pam8302}
 		\end{figure}
-		Ten wzmacniacz monofoniczny o~mocy \SI{2.5}{\W} przeznaczony jest do współpracy z~głośnikami o~impedancji od \SI{4}{} do \SI{8}{\ohm}. Producent deklaruje sprawność w~zakresie 85-88\% \cite{speakeropamp} oraz niski współczynnik zawartości harmonicznych i~szumów (THD+N) wynoszący 10\%.
+		Ten wzmacniacz monofoniczny o~mocy \SI{2.5}{\W} przeznaczony jest do współpracy z~głośnikami o~impedancji od \SI{4}{} do \SI{8}{\ohm}. Producent deklaruje sprawność w~zakresie 85-88\% \cite{speakeropamp} oraz współczynnik zawartości harmonicznych i~szumów (THD+N) wynoszący 10\%.
 		\item Głośnik typu MG15 o~mocy \SI{0.1}{\W} oraz impedancji \SI{8}{\ohm} (rys. \ref{fig:mg15})\\
 		\begin{figure}[h!]
 			\centering
@@ -41,17 +41,17 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 			\label{fig:mg15}
 		\end{figure}
 		\item Filtr dolnoprzepustowy (antyaliasingowy) -- dwie sztuki\\
-		Zanim sygnał zostanie dostarczony do przetwornika A/C, należy zapewnić, by jego częstotliwość nie przekroczyła częstotliwości Nyquista\footnote{Jest to połowa częstotliwości próbkowania sygnału. Przekroczenie jej przez nieodfiltrowany sygnał powoduje pokrycie się dwóch, różnych od siebie sygnałów. Przykład aliasingu: Dla częstotliwości Nyquista równej \SI{1000}{\Hz}, nieodfiltrowany sygnał \SI{3100}{\Hz} zostałby odczytany jako sygnał \SI{100}{\Hz}.}. Pozwala to uniknąć błędnego zakodowania sygnału w~dziedzinie cyfrowej.
+		Zanim sygnał zostanie dostarczony do przetwornika A/C, należy zapewnić, by jego częstotliwość nie przekroczyła częstotliwości Nyquista\footnote{Jest to połowa częstotliwości próbkowania sygnału. Przekroczenie jej przez nieodfiltrowany sygnał powoduje pokrycie się dwóch, różnych od siebie sygnałów. Przykład aliasingu: Dla częstotliwości Nyquista równej \SI{1000}{\Hz}, nieodfiltrowany sygnał \SI{3100}{\Hz} zostałby odczytany jako sygnał \SI{100}{\Hz}.}. Pozwala to uniknąć błędnego zakodowania sygnału w~dziedzinie cyfrowej. W~pracy zastosowano pasywny filtr dolnoprzepustowy RC pierwszego rzędu.
 		%\item Filtr dolnoprzepustowy 2 (rekonstrukcyjny, anti-imagingowy)\\
 		%Podobnie jak na wejściu do części cyfrowej układu, również na jej wyjściu należy umieścić filtr dolnoprzepustowy (na wyjściu przetwornika C/A) -- aby zapobiec wtłaczaniu wyższych harmonicznych do głośnika.
 	\end{itemize}
 	\item Cyfrowe:
 	\begin{itemize}
 		\item Przetwornik analogowo-cyfrowy -- dwie sztuki\\
-		Autor zdecydował się użyć dwóch osobnych przetworników do akwizycji sygnału z~mikrofonów, aby uniknąć przesłuchów, które mogłyby się pojawić w~przypadku użycia pojedynczego przetwornika. Przyczyną przesłuchów jest zwykle multiplekser analogowy wybierający kanały wejściowe przetwornika A/C. Takie rozwiązanie zmniejsza też nieznacznie opóźnienia w~przetworzeniu sygnału, gdyż można wtedy skonfigurować przetworniki w~trybie mierzenia pojedynczego kanału, a~nie skanowania po kolei wszystkich dostępnych~16. Przetwornik realizuje algorytm SAR\footnote{Sukcesywna Aproksymacja (ang. Successive Approximation Register, inaczej próbkowanie bitowe)}.\\
+		Autor zdecydował się użyć dwóch osobnych przetworników (wchodzących w~skład mikrokontrolera) do akwizycji sygnału z~mikrofonów, aby uniknąć przesłuchów, które mogłyby się pojawić w~przypadku użycia pojedynczego przetwornika. Przyczyną przesłuchów jest zwykle multiplekser analogowy wybierający kanały wejściowe przetwornika A/C. Takie rozwiązanie zmniejsza też nieznacznie opóźnienia w~przetworzeniu sygnału, gdyż można wtedy skonfigurować przetworniki w~trybie mierzenia pojedynczego kanału, a~nie skanowania dwóch po kolei. Przetwornik realizuje algorytm SAR\footnote{Sukcesywna Aproksymacja (ang. Successive Approximation Register, inaczej próbkowanie bitowe)}.\\
 		Warto zauważyć, że przetworniki dostępne na płytce użytej przez autora mają rozdzielczość 12~bitów, co pozostawia pewne pole do poprawy projektu i~wyboru komponentów, ale jednocześnie zapewnia wystarczający poziom dokładności dla potrzeb prototypowania układu.
 		\item Timer (Licznik)\\
-		Do zadania wyznaczenia stałego kroku konwersji wybrano timer~3. Jest to podstawowy licznik mikrokontrolera, bez dodatkowych funkcjonalności (jakie posiada chociażby timer~1). Odmierzenie zadanego interwału czasowego sygnalizowane jest wewnętrznie jako zdarzenie, które wychwytuje przetwornik A/C. Jego konfiguracja została opisana w~sekcji~\ref{sec:configuration}.
+		Do zadania wyznaczenia stałego kroku próbkowania wybrano timer~3. Jest to podstawowy licznik mikrokontrolera, bez dodatkowych funkcjonalności (jakie posiada chociażby timer~1). Odmierzenie zadanego interwału czasowego sygnalizowane jest wewnętrznie jako zdarzenie, które wychwytuje przetwornik A/C. Jego konfiguracja została opisana w~sekcji~\ref{sec:configuration}.
 		\item Kontroler DMA (Direct Memory Access) -- dwie sztuki\\
 		Jeden z~kontrolerów użyty jest do transferu danych z~przetworników~A/C do pamięci mikrokontrolera STM32, zaś drugi - do transferu (po przeprowadzeniu eksperymentu) wartości nastaw filtra LMS z~pamięci do kontrolera UART. Transfer w~pierwszym przypadku dokonywany jest w~trybie ciągłym, a~więc po każdym przerwaniu do DMA, zgłoszonym przez przetwornik na końcu konwersji. W~drugim przypadku, transfer wywoływany jest po wciśnięciu przez testera przycisku na płytce prototypowej lub wysłaniu odpowiedniej komendy z~komputera~PC.
 		\item NVIC (Nested Vectored Interrupt Controller)\\
@@ -61,9 +61,9 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 		\item Rdzeń mikrokontrolera\\
 		Główna jednostka obliczeniowa.
 		\item FPU (Floating Point Unit)\\
-		Jednostka dedykowana do obliczeń zmiennoprzecinkowych na liczbach 32-bitowych (a~więc typu float). Znacznie podnosi precyzję obliczeń na ułamkach i~przyspiesza działanie całego układu jeżeli takich działań jest dużo. Należy jednak pamiętać, że nie działa dla typu double (więc 64-bit). 
+		Jednostka dedykowana do obliczeń zmiennoprzecinkowych na liczbach 32-bitowych (a~więc typu float). Znacznie podnosi precyzję obliczeń na ułamkach i~przyspiesza działanie całego układu jeżeli takich działań jest dużo. Należy jednak pamiętać, że operuje jedynie na danych pojedynczej precyzji. 
 		\item Przetwornik cyfrowo-analogowy\\
-		Do celu prototypowego użyto jednego kanału wyjściowego, aby przetestować działanie systemu w~jednolitej, odgrodzonej przestrzeni sferycznej. Konwersja sygnału na postać analogową następuje automatycznie, bez wywołania, przy każdej wykrytej zmianie słowa bitowego wpisanego do rejestru danych wyjściowych przetwornika DAC. Dane są wpisywane do tego rejestru po każdym skończonym cyklu obliczeniowym.
+		Do celu prototypowego użyto jednego kanału wyjściowego, aby przetestować działanie systemu w~jednolitej, odgrodzonej przestrzeni sferycznej. Konwersja sygnału na postać analogową następuje automatycznie, bez oddzielnego inicjowania, przy każdej wykrytej zmianie słowa bitowego wpisanego przez program do rejestru danych wyjściowych przetwornika DAC. Dane są wpisywane do tego rejestru po każdym skończonym cyklu obliczeniowym.
 	\end{itemize}
 \end{enumerate}
 
@@ -71,12 +71,12 @@ Nauszniki te stanowią część tłumiącą pasywnie. Do stworzenia i~zaimplemen
 \label{sec:config}
 Uproszczony schemat w~wersji graficznej został przedstawiony przez autora na rysunku \ref{fig:schemat1}. Podstawową zasadą działania systemu jest:
 \begin{enumerate}
-	\item Akwizycja sygnału przez mikrofon główny oraz odsłuchowy.
+	\item Akwizycja sygnału przez dwa mikrofony: główny oraz odsłuchowy.
 	\item Wzmocnienie sygnału przez przedwzmacniacz mikrofonowy.
 	\item Konwersja analogowego sygnału do postaci cyfrowej w~przetworniku ADC.
 	\item Transfer danych przez kontroler DMA do pamięci urządzenia.
 	\item Odczyt danych (pochodzących z~mikrofonu głównego) z~pamięci i~przetworzenie ich w~filtrze FIR.\\
-	Odczyt danych z~mikrofonu(pochodzących z~mikrofonu odsłuchowego) z~pamięci i~przetworzenie ich w~module strojenia LMS.
+	Odczyt danych (pochodzących z~mikrofonu odsłuchowego) z~pamięci i~przetworzenie ich w~module strojenia LMS.
 	\item Jednoczesne przekazanie danych z~mikrofonu głównego do modułu strojenia filtra LMS.
 	\item Przestrojenie filtra na podstawie algorytmu LMS.
 	\item Obliczenie odpowiedzi filtra FIR i~przesłanie jej do przetwornika DAC.
@@ -99,4 +99,4 @@ Mikrofon odsłuchowy umiejscowiony w~optymalnej pozycji charakteryzuje się zlin
 
 Aby stworzyć odgrodzoną przestrzeń sferyczną, autor postanowił złączyć (ścisnąć) dwie słuchawki użytych nauszników. Pomiędzy słuchawkami umieszczono element dystansowy (długopis), aby zamodelować nieidealne przyleganie słuchawek do głowy potencjalnego użytkownika. Do celów testowych nie będzie potrzebny dodatkowy mikrofon umieszczony w~środku przestrzeni -- zostanie użyty zamontowany już mikrofon odsłuchowy. Dane z~niego zostaną odczytane przy użyciu sondy oscyloskopu.
 
-Aby zasilić prototyp, autor podłączył mikrokontroler poprzez USB do komputera osobistego. Zapewniło to standardowe zasilanie mikrokontrolera na poziomie \SI{3.3}{\V}. Ponadto, celem odseparowania części analogowej od cyfrowej, autor zdecydował się zapewnić osobne zasilanie dla układów analogowych, a~więc mikrofonu wraz z~jego przedwzmacniaczem oraz dla wzmacniacza głośnikowego. Tym samym zredukowane są zakłócenia, które normalnie mogłyby się przenieść z~linii zasilania układu cyfrowego do bardzo wrażliwej na te zakłócenia części analogowej. Zasilanie to, dla mikrofonów, zostało osiągnięte poprzez dołączenie pastylkowych baterii \SI{3}{\V} typu CR2032 do elementów analogowych. Zasilanie przedwzmacniacza z~głośnikiem wymaga użycia nieco innej metody ze względu na dużą moc komponentu -- zwykła bateria nie wystarczyłaby do odpowiednio długotrwałego działania układu. Biorąc pod uwagę prototypowy charakter całego urządzenia oraz konieczność połączenia mikrokontrolera z~komputerem, autor zdecydował się zasilić przedwzmacniacz przy użyciu modułu zasilającego z~płytki prototypowej, podłączonego przez zasilacz impulsowy DC \SI{9}{\V} do gniazdka sieciowego. Przyłącze zasilacza nie posiada złącza uziemienia, dlatego po połączeniu wszystkich komponentów w~całym układzie występuje jeden wspólny punkt uziemiający -- jest nim GNDA, czyli masa analogowa mikrokontrolera. Pozwala to uniknąć pętli masy, które miałyby wpływ na jakość sygnału w~urzadzeniu. Warto zwrócić uwagę na fakt, że gdyby moduł zasilający został podłączony przez magistralę USB, to powstałaby pętla masy pomiędzy układem mierzonym a~komputerem pomiarowym, który zapewniałby energię dla urządzenia.
+Aby zasilić prototyp, autor podłączył mikrokontroler poprzez USB do komputera osobistego. Zapewniło to standardowe zasilanie mikrokontrolera na poziomie \SI{3.3}{\V}. Ponadto, celem odseparowania części analogowej od cyfrowej, autor zdecydował się zapewnić osobne zasilanie dla układów analogowych, a~więc mikrofonu wraz z~jego przedwzmacniaczem oraz dla wzmacniacza głośnikowego. Tym samym zredukowane są zakłócenia, które normalnie mogłyby się przenieść z~linii zasilania układu cyfrowego do bardzo wrażliwej na te zakłócenia części analogowej. Zasilanie to, dla mikrofonów, zostało osiągnięte poprzez dołączenie pastylkowych baterii \SI{3}{\V} typu CR2032 do elementów analogowych. Zasilanie przedwzmacniacza z~głośnikiem wymaga użycia nieco innej metody ze względu na dużą moc komponentu -- zwykła bateria nie wystarczyłaby do odpowiednio długotrwałego działania układu. Biorąc pod uwagę prototypowy charakter całego urządzenia oraz konieczność połączenia mikrokontrolera z~komputerem, autor zdecydował się zasilić przedwzmacniacz przy użyciu modułu zasilającego z~płytki stykowej, podłączonego przez zasilacz impulsowy DC \SI{9}{\V} do gniazdka sieciowego. Przyłącze zasilacza nie posiada złącza uziemienia, dlatego po połączeniu wszystkich komponentów w~całym układzie występuje jeden wspólny punkt uziemiający -- jest nim GNDA, czyli masa analogowa mikrokontrolera. Pozwala to uniknąć pętli masy, które miałyby wpływ na jakość sygnału w~urządzeniu. Warto zwrócić uwagę na fakt, że gdyby zasilający wzmacniacz mocy został podłączony przez magistralę USB, to powstałaby pętla masy pomiędzy układem mierzonym a~komputerem pomiarowym, który zasila już zestaw uruchomieniowy z~mikrokontrolerem.
