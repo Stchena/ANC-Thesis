@@ -127,7 +127,8 @@ Supervisor: & {\itshape \@supervisor}\\
 
 \clearpage 
 \thispagestyle{empty} 
-
+\newpage\null\thispagestyle{empty}\newpage
+\vspace{20mm}
 \clearpage \titlepage
 
 \vspace*{15cm} \vfill

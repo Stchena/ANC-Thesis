@@ -256,7 +256,9 @@ void DMA2_Stream0_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-// ISR for blue button push - disable algorithm and start sending data
+/**
+  * @brief ISR for blue button push - disable algorithm and start sending data
+  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == GPIO_PIN_13)

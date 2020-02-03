@@ -23,9 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <string.h>
-#include <stdio.h> // consider overhead from including this lib...
-#include <stdlib.h>
+#include <string.h>			// used for mem operations (memset, memmove)
+#include <stdlib.h>			// needed for atoi - UART RX
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,9 +35,9 @@
 /* USER CODE BEGIN PD */
 #define BETA 2E-4f			// LMS Convergence Rate
 #define L 50				// Filter Order
-#define V_REF 3.0f
+#define V_REF 3.0f			// this should be changed in the future to dynamically calculate the DC offset of the signal
 #define RESOLUTION 4096		// ADC and DAC resolution 12bit
-#define DAC_LOW_TH 	850
+#define DAC_LOW_TH 	850		// threshold for DAC buffer - at edge values it behaves weird ("rollover" of output voltage)
 #define DAC_HIGH_TH 3250
 /* USER CODE END PD */
 
@@ -60,15 +59,12 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
-const float V_REF_HALF = V_REF/2.0f; // added as variable to speed up calculations
-
-volatile uint8_t enable = 1;					// should ANC be enabled? default: 1
+const float V_REF_HALF = V_REF/2.0f; 			// added as variable to speed up calculations
 float samples[L];								// buffer of L input samples, where 0 is newest, L-1 is oldest
 float weights[L];		 						// Filter coefficients (weights), where 0 is newest, L-1 is oldest
 volatile uint32_t micInsideOutside = 0; 		// upper half word is hadc2, lower half word is hadc1 -- this is ADC in DMA Mode 2 behaviour
 uint16_t output = 0;							// output of FIR filter to DAC
-//static uint16_t buffer_count = 0;				// uart_tx_buffer count
-//uint16_t uart_tx_buffer[L];					// buffer to send data on button click
+volatile uint8_t enable = 1;					// should ANC be enabled? default: 1
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,13 +120,11 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  //LMS_Weights_Init(weights);
-
   HAL_ADC_Start(&hadc2);
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, &micInsideOutside, 1);
   HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
-  HAL_TIM_Base_Start(&htim3); // start timer 1
-  HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1); // wait for input from testing PC
+  HAL_TIM_Base_Start(&htim3); // start timer 3 to enable ADC triggering
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)&enable, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -492,7 +486,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 	case 0:
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-		HAL_UART_Transmit_DMA(&huart2, (uint8_t*)weights, sizeof(float)*L);
+		// Send contents of weights buffer. Used while testing to create filter impulse response diagram.
+		UartTransmitDMA();
 		break;
 	case 1:
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
@@ -505,7 +500,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void UartTransmitDMA(void)
 {
-	HAL_UART_Transmit_DMA(&huart2, (uint8_t*)weights, sizeof(float)*L); // Send weights buffer for validation of finite impulse filter
+	HAL_UART_Transmit_DMA(&huart2, (uint8_t*)weights, sizeof(float)*L);
 }
 
 /*
@@ -517,10 +512,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	if(!enable) return;
 	short I;
 	float fir_error = 0.0f;
-	float Yn = 0.0f;
 	// shift the buffer
-	for(I=L-2; I>=0; --I)
-		samples[I+1] = samples[I];
+	memmove(samples+1, samples, (L-1)*sizeof(float));
 	uint16_t feedforward_sample = (uint16_t)(micInsideOutside & 0x0000FFFF); // save new value from feedforward mic
 	uint16_t feedback_sample = (uint16_t)((micInsideOutside & 0xFFFF0000) >> 16); // save new value from feedback mic
 
@@ -528,23 +521,24 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	fir_error = feedback_sample*V_REF/RESOLUTION - V_REF_HALF; // convert to float according to resolution
 	// calculate filter output
 	float weight_sum = 0.0f;
+	float Yn = 0.0f;
+	float* pweights = &weights[L-1];
+	float* psamples = &samples[L-1];
 	for(I=L-1; I>=0; --I)
 	{
-		weights[I] = weights[I] + BETA*fir_error*samples[I];
-		weight_sum += weights[I];
-		Yn -= (weights[I] * samples[I]);
+		*pweights = *pweights + BETA*fir_error*(*psamples);
+		weight_sum += *pweights;
+		Yn -= *(pweights--)*(*(psamples--)); // note that at last iteration pweights gets set to point at weights[-1] - this is handled in the next loop using preinc instead of postinc
 	}
 	for(I=L-1; I>=0; --I)
 	{
-		weights[I] -= 0.04f*weight_sum/((float)L); // DC drift reduction - calculate sum of weights, and if !=0 then drift the DC constant slowly towards 0 using part of this sum.
+		*(++pweights) -= 0.04f*weight_sum/((float)L); // DC drift reduction - calculate sum of weights, and if !=0 then drift the DC constant slowly towards 0 using part of this sum.
 	}
-	Yn > (V_REF_HALF) ? Yn=V_REF_HALF :
-			(Yn < (-V_REF_HALF) ? Yn=-V_REF_HALF : Yn);
 	output = (uint16_t)((Yn+V_REF_HALF)*(RESOLUTION-1.0f)/V_REF);
 	if(output<DAC_LOW_TH) output = DAC_LOW_TH;
-	if(output>DAC_HIGH_TH) output = DAC_HIGH_TH; // saturate output, destabilized filter will generate square wave instead of frying speakers
+	if(output>DAC_HIGH_TH) output = DAC_HIGH_TH; // saturate output, so that destabilised filter will generate square wave instead of frying speakers
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, output);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); // connecting diode pin to oscilloscope allows for execution time examination
 }
 /* USER CODE END 4 */
 
